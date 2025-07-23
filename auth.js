@@ -3,6 +3,8 @@
  * Handles user authentication flows including login, registration, and password reset
  */
 
+const API_BASE = 'https://sandbox-backend-pxtc.onrender.com/api';
+
 class AuthManager {
     constructor() {
         // DOM Elements

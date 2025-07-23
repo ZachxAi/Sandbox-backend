@@ -55,6 +55,58 @@ app.use('/api/workspaces', require('./routes/workspaces'));
 const projectsRouter = require('./routes/projects');
 app.use('/api/workspaces/:workspaceId/projects', projectsRouter);
 
+// ChatGPT API integration
+const OpenAI = require('openai');
+const openai = new OpenAI({
+    apiKey: process.env.OPENAI_API_KEY
+});
+
+// AI Chat endpoint
+app.post('/api/chat/ai-response', async (req, res) => {
+    try {
+        const { message, context, step } = req.body;
+        
+        if (!process.env.OPENAI_API_KEY) {
+            // Fallback response if no API key
+            const fallbackResponses = [
+                "That's a great insight! Let's build on that idea and move forward with your business planning.",
+                "I understand your perspective. This will be valuable as we develop your business strategy.",
+                "Excellent! Your response shows you're thinking strategically about your business opportunity.",
+                "Thank you for sharing that. Let's use this information to strengthen your business foundation."
+            ];
+            const randomResponse = fallbackResponses[Math.floor(Math.random() * fallbackResponses.length)];
+            return res.json({ response: randomResponse });
+        }
+        
+        const completion = await openai.chat.completions.create({
+            model: "gpt-3.5-turbo",
+            messages: [
+                {
+                    role: "system",
+                    content: "You are an expert business advisor and mentor helping entrepreneurs build successful businesses. You provide encouraging, practical advice and ask insightful follow-up questions. Keep responses concise but valuable, around 2-3 sentences. Be supportive and motivational while being practical."
+                },
+                {
+                    role: "user",
+                    content: `${context}\n\nUser's response: ${message}`
+                }
+            ],
+            max_tokens: 150,
+            temperature: 0.7
+        });
+        
+        const aiResponse = completion.choices[0]?.message?.content || "Thank you for sharing that. Let's continue building your business together.";
+        
+        res.json({ response: aiResponse });
+        
+    } catch (error) {
+        console.error('OpenAI API error:', error);
+        
+        // Fallback response on error
+        const fallbackResponse = "I appreciate your input. Let's keep moving forward with your business planning journey.";
+        res.json({ response: fallbackResponse });
+    }
+});
+
 
 // API Routes
 app.get('/api/health', (req, res) => {

@@ -104,38 +104,59 @@ class SandBoxApp {
         }
 
         if (this.elements.startJourneyBtn) {
-            console.log("Binding startJourneyBtn");
-            this.elements.startJourneyBtn.addEventListener('click', () => {
-                console.log("Start Journey clicked");
-                this.startJourney();
-            });
-        } else {
-            console.log("startJourneyBtn not found in DOM");
+            this.elements.startJourneyBtn.addEventListener('click', () => this.startJourney());
         }
 
-        if (this.elements.stepsList) {
-            this.elements.stepsList.addEventListener('click', (e) => {
-                if (e.target.classList.contains('step-item')) {
-                    this.showDashboardView(e.target.dataset.view);
+        // Chat input handling
+        if (this.elements.userInput) {
+            this.elements.userInput.addEventListener('keypress', (e) => {
+                if (e.key === 'Enter' && !this.elements.userInput.disabled) {
+                    this.handleUserInput();
                 }
             });
         }
 
+        if (this.elements.sendBtn) {
+            this.elements.sendBtn.addEventListener('click', () => {
+                if (!this.elements.sendBtn.disabled) {
+                    this.handleUserInput();
+                }
+            });
+        }
+
+        // Navigation buttons
         if (this.elements.resetBtn) {
             this.elements.resetBtn.addEventListener('click', () => this.resetJourney());
         }
-        
+
         if (this.elements.exportBtn) {
             this.elements.exportBtn.addEventListener('click', () => this.exportBusinessPlan());
         }
-        
+
         if (this.elements.collabBtn) {
             this.elements.collabBtn.addEventListener('click', () => this.showCollaborationHub());
         }
 
+        // Auth buttons
         if (this.elements.loginBtn) {
             this.elements.loginBtn.addEventListener('click', () => {
                 window.location.href = 'auth.html';
+            });
+        }
+
+        // Fix logout button functionality
+        if (this.elements.logoutBtn) {
+            this.elements.logoutBtn.addEventListener('click', () => {
+                if (window.authManager && typeof window.authManager.logout === 'function') {
+                    window.authManager.logout();
+                } else {
+                    // Fallback logout functionality
+                    localStorage.removeItem('authToken');
+                    localStorage.removeItem('user');
+                    sessionStorage.removeItem('authToken');
+                    sessionStorage.removeItem('user');
+                    window.location.href = 'auth.html';
+                }
             });
         }
     }
@@ -166,6 +187,81 @@ class SandBoxApp {
             this.elements.userInput.value = '';
             this.processUserResponse(message);
         }
+    }
+
+    async processUserResponse(message) {
+        console.log("Processing user response:", message);
+        
+        // Show loading state
+        const loadingOverlay = document.getElementById('loadingOverlay');
+        if (loadingOverlay) {
+            loadingOverlay.style.display = 'flex';
+        }
+        
+        try {
+            // Call ChatGPT API for AI response
+            const aiResponse = await this.getAIResponse(message);
+            
+            // Hide loading state
+            if (loadingOverlay) {
+                loadingOverlay.style.display = 'none';
+            }
+            
+            // Add AI response to chat
+            this.addAIMessage(aiResponse);
+            
+            // Process the current step
+            setTimeout(() => {
+                this.completeCurrentStep();
+            }, 1000);
+            
+        } catch (error) {
+            console.error('Error getting AI response:', error);
+            
+            // Hide loading state
+            if (loadingOverlay) {
+                loadingOverlay.style.display = 'none';
+            }
+            
+            // Fallback response
+            this.addAIMessage("I understand. Let me help you with the next step in your journey.");
+            setTimeout(() => {
+                this.completeCurrentStep();
+            }, 1000);
+        }
+    }
+
+    async getAIResponse(userMessage) {
+        const API_BASE = 'https://sandbox-backend-pxtc.onrender.com/api';
+        const authToken = localStorage.getItem('authToken') || sessionStorage.getItem('authToken');
+        
+        if (!authToken) {
+            throw new Error('No authentication token found');
+        }
+        
+        // Create context based on current step
+        const currentStepInfo = this.workflowSteps[this.currentStep] || {};
+        const context = `You are an AI business advisor helping an entrepreneur. Current step: ${currentStepInfo.title}. User response: ${userMessage}. Provide helpful, encouraging advice and ask follow-up questions to guide them through their business planning journey.`;
+        
+        const response = await fetch(`${API_BASE}/chat/ai-response`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'x-auth-token': authToken
+            },
+            body: JSON.stringify({
+                message: userMessage,
+                context: context,
+                step: this.currentStep
+            })
+        });
+        
+        if (!response.ok) {
+            throw new Error(`API request failed: ${response.status}`);
+        }
+        
+        const data = await response.json();
+        return data.response || "Thank you for sharing that. Let's continue with your business journey.";
     }
 
     addAIMessage(message) {
