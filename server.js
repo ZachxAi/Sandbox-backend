@@ -11,22 +11,17 @@ const config = require('./config');
 const app = express();
 const PORT = config.PORT || 3000;
 
-// Connect to Database (temporarily disabled for preview)
+// Connect to Database
 const connectDB = async () => {
   try {
-    console.log('Running in preview mode - MongoDB connection skipped');
-    return true;
-    /*
     await mongoose.connect(config.MONGO_URI, {
       useNewUrlParser: true,
       useUnifiedTopology: true,
     });
     console.log('MongoDB Connected...');
-    */
   } catch (err) {
-    console.error('Database connection error (running in preview mode):', err.message);
-    // Continue in preview mode even if there's an error
-    return true;
+    console.error('Database connection error:', err.message);
+    process.exit(1); // Stop the server if DB connection fails
   }
 };
 connectDB();
