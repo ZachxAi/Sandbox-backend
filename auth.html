@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SandBox - Authentication</title>
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body class="auth-page">
+    <div class="auth-container">
+        <div class="auth-card" id="loginCard">
+            <div class="auth-header">
+                <div class="auth-logo">
+                    <i class="fas fa-cube"></i>
+                    <span>SandBox</span>
+                </div>
+                <h2>Welcome Back</h2>
+                <p>Sign in to continue your entrepreneurial journey</p>
+            </div>
+            
+            <form id="loginForm" class="auth-form">
+                <div class="form-group">
+                    <label for="loginEmail">Email</label>
+                    <div class="input-with-icon">
+                        <i class="fas fa-envelope"></i>
+                        <input type="email" id="loginEmail" placeholder="Enter your email" required>
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <div class="form-header">
+                        <label for="loginPassword">Password</label>
+                        <a href="#" class="forgot-password" id="forgotPasswordLink">Forgot password?</a>
+                    </div>
+                    <div class="input-with-icon">
+                        <i class="fas fa-lock"></i>
+                        <input type="password" id="loginPassword" placeholder="Enter your password" required>
+                        <button type="button" class="toggle-password" data-target="loginPassword">
+                            <i class="fas fa-eye"></i>
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="form-group remember-me">
+                    <input type="checkbox" id="rememberMe">
+                    <label for="rememberMe">Remember me</label>
+                </div>
+                
+                <button type="submit" class="auth-button primary">
+                    <span>Sign In</span>
+                    <i class="fas fa-arrow-right"></i>
+                </button>
+                
+                <div class="auth-divider">
+                    <span>or continue with</span>
+                </div>
+                
+                <div class="social-auth">
+                    <button type="button" class="social-button google">
+                        <i class="fab fa-google"></i>
+                    </button>
+                    <button type="button" class="social-button github">
+                        <i class="fab fa-github"></i>
+                    </button>
+                </div>
+                
+                <div class="auth-footer">
+                    Don't have an account? <a href="#" id="showRegister">Sign up</a>
+                </div>
+            </form>
+        </div>
+        
+        <div class="auth-card" id="registerCard" style="display: none;">
+            <div class="auth-header">
+                <div class="auth-logo">
+                    <i class="fas fa-cube"></i>
+                    <span>SandBox</span>
+                </div>
+                <h2>Create Account</h2>
+                <p>Start your entrepreneurial journey today</p>
+            </div>
+            
+            <form id="registerForm" class="auth-form">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="firstName">First Name</label>
+                        <div class="input-with-icon">
+                            <i class="fas fa-user"></i>
+                            <input type="text" id="firstName" placeholder="John" required>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="lastName">Last Name</label>
+                        <div class="input-with-icon">
+                            <i class="fas fa-user"></i>
+                            <input type="text" id="lastName" placeholder="Doe" required>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="registerEmail">Email</label>
+                    <div class="input-with-icon">
+                        <i class="fas fa-envelope"></i>
+                        <input type="email" id="registerEmail" placeholder="Enter your email" required>
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="registerPassword">Password</label>
+                    <div class="input-with-icon">
+                        <i class="fas fa-lock"></i>
+                        <input type="password" id="registerPassword" placeholder="Create a password" required>
+                        <button type="button" class="toggle-password" data-target="registerPassword">
+                            <i class="fas fa-eye"></i>
+                        </button>
+                    </div>
+                    <div class="password-strength">
+                        <div class="strength-bar">
+                            <span class="strength-segment" data-strength="weak"></span>
+                            <span class="strength-segment" data-strength="medium"></span>
+                            <span class="strength-segment" data-strength="strong"></span>
+                        </div>
+                        <span class="strength-text">Password strength</span>
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="confirmPassword">Confirm Password</label>
+                    <div class="input-with-icon">
+                        <i class="fas fa-lock"></i>
+                        <input type="password" id="confirmPassword" placeholder="Confirm your password" required>
+                        <button type="button" class="toggle-password" data-target="confirmPassword">
+                            <i class="fas fa-eye"></i>
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="form-group terms">
+                    <input type="checkbox" id="terms" required>
+                    <label for="terms">I agree to the <a href="#">Terms of Service</a> and <a href="#">Privacy Policy</a></label>
+                </div>
+                
+                <button type="submit" class="auth-button primary">
+                    <span>Create Account</span>
+                    <i class="fas fa-arrow-right"></i>
+                </button>
+                
+                <div class="auth-footer">
+                    Already have an account? <a href="#" id="showLogin">Sign in</a>
+                </div>
+            </form>
+        </div>
+        
+        <div class="auth-card" id="forgotPasswordCard" style="display: none;">
+            <div class="auth-header">
+                <div class="auth-logo">
+                    <i class="fas fa-cube"></i>
+                    <span>SandBox</span>
+                </div>
+                <h2>Reset Password</h2>
+                <p>Enter your email to receive a password reset link</p>
+            </div>
+            
+            <form id="forgotPasswordForm" class="auth-form">
+                <div class="form-group">
+                    <label for="resetEmail">Email</label>
+                    <div class="input-with-icon">
+                        <i class="fas fa-envelope"></i>
+                        <input type="email" id="resetEmail" placeholder="Enter your email" required>
+                    </div>
+                </div>
+                
+                <button type="submit" class="auth-button primary">
+                    <span>Send Reset Link</span>
+                    <i class="fas fa-paper-plane"></i>
+                </button>
+                
+                <div class="auth-footer">
+                    Remember your password? <a href="#" id="backToLogin">Back to login</a>
+                </div>
+            </form>
+        </div>
+        
+        <div class="auth-illustration">
+            <div class="floating-shapes">
+                <div class="shape shape-1"></div>
+                <div class="shape shape-2"></div>
+                <div class="shape shape-3"></div>
+            </div>
+            <div class="illustration-content">
+                <h3>Turn Your Ideas Into Reality</h3>
+                <p>Join thousands of entrepreneurs who are building the future with SandBox</p>
+                <div class="features-list">
+                    <div class="feature-item">
+                        <i class="fas fa-check-circle"></i>
+                        <span>AI-Powered Guidance</span>
+                    </div>
+                    <div class="feature-item">
+                        <i class="fas fa-check-circle"></i>
+                        <span>Team Collaboration</span>
+                    </div>
+                    <div class="feature-item">
+                        <i class="fas fa-check-circle"></i>
+                        <span>Real-time Updates</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script src="auth.js"></script>
+</body>
+</html>
