@@ -1,246 +1,211 @@
-const express = require('express');
-const router = express.Router();
-const jwt = require('jsonwebtoken');
-const bcrypt = require('bcryptjs');
-const { body, validationResult } = require('express-validator');
-const User = require('../models/User');
-const config = require('../config');
+/**
+ * SandBox Authentication Module
+ * Handles user authentication flows including login, registration, and password reset
+ */
 
-// @route   POST api/auth/register
-// @desc    Register a new user
-// @access  Public
-router.post(
-  '/register',
-  [
-    body('firstName', 'First name is required').not().isEmpty(),
-    body('lastName', 'Last name is required').not().isEmpty(),
-    body('email', 'Please include a valid email').isEmail(),
-    body('password', 'Please enter a password with 6 or more characters').isLength({ min: 6 })
-  ],
-  async (req, res) => {
-    const errors = validationResult(req);
-    if (!errors.isEmpty()) {
-      return res.status(400).json({ errors: errors.array() });
+class AuthManager {
+    constructor() {
+        // DOM Elements
+        this.loginCard = document.getElementById('loginCard');
+        this.registerCard = document.getElementById('registerCard');
+        this.forgotPasswordCard = document.getElementById('forgotPasswordCard');
+
+        // Auth state
+        this.currentUser = null;
+        this.authToken = localStorage.getItem('authToken') || sessionStorage.getItem('authToken');
+
+        // Initialize the auth module
+        this.init();
     }
 
-    const { firstName, lastName, email, password } = req.body;
-
-    try {
-      // Check if user exists
-      let user = await User.findOne({ email });
-
-      if (user) {
-        return res.status(400).json({ errors: [{ msg: 'User already exists' }] });
-      }
-
-      // Create user
-      user = new User({
-        firstName,
-        lastName,
-        email,
-        password,
-        avatar: `https://ui-avatars.com/api/?name=${encodeURIComponent(firstName + ' ' + lastName)}&background=6c5ce7&color=fff`
-      });
-
-      // Hash password
-      const salt = await bcrypt.genSalt(10);
-      user.password = await bcrypt.hash(password, salt);
-
-      // Save user to database
-      await user.save();
-
-      // Generate JWT
-      const payload = {
-        user: {
-          id: user.id
-        }
-      };
-
-      jwt.sign(
-        payload,
-        config.JWT_SECRET,
-        { expiresIn: '7d' },
-        (err, token) => {
-          if (err) throw err;
-          res.json({ token, user: {
-            id: user.id,
-            firstName: user.firstName,
-            lastName: user.lastName,
-            email: user.email,
-            avatar: user.avatar
-          } });
-        }
-      );
-    } catch (err) {
-      console.error(err.message);
-      res.status(500).send('Server error');
-    }
-  }
-);
-
-// @route   POST api/auth/login
-// @desc    Authenticate user & get token
-// @access  Public
-router.post(
-  '/login',
-  [
-    body('email', 'Please include a valid email').isEmail(),
-    body('password', 'Password is required').exists()
-  ],
-  async (req, res) => {
-    const errors = validationResult(req);
-    if (!errors.isEmpty()) {
-      return res.status(400).json({ errors: errors.array() });
-    }
-
-    const { email, password } = req.body;
-
-    try {
-      // Check if user exists
-      let user = await User.findOne({ email });
-
-      if (!user) {
-        return res.status(400).json({ errors: [{ msg: 'Invalid credentials' }] });
-      }
-
-      // Validate password
-      const isMatch = await bcrypt.compare(password, user.password);
-
-      if (!isMatch) {
-        return res.status(400).json({ errors: [{ msg: 'Invalid credentials' }] });
-      }
-
-      // Generate JWT
-      const payload = {
-        user: {
-          id: user.id
-        }
-      };
-
-      jwt.sign(
-        payload,
-        config.JWT_SECRET,
-        { expiresIn: '7d' },
-        (err, token) => {
-          if (err) throw err;
-          res.json({ 
-            token,
-            user: {
-              id: user.id,
-              firstName: user.firstName,
-              lastName: user.lastName,
-              email: user.email,
-              avatar: user.avatar
+    init() {
+        // If on auth page, set up listeners. If not, check if user should be redirected.
+        if (document.querySelector('.auth-page')) {
+            if (this.authToken) {
+                this.verifyTokenAndRedirect();
             }
-          });
-        }
-      );
-    } catch (err) {
-      console.error(err.message);
-      res.status(500).send('Server error');
+            this.setupEventListeners();
+            this.checkUrlParams();
+        } 
     }
-  }
-);
 
-// @route   GET api/auth/user
-// @desc    Get authenticated user
-// @access  Private
-router.get('/user', async (req, res) => {
-  try {
-    const user = await User.findById(req.user.id).select('-password');
-    res.json(user);
-  } catch (err) {
-    console.error(err.message);
-    res.status(500).send('Server Error');
-  }
+    setupEventListeners() {
+        document.getElementById('showRegister')?.addEventListener('click', (e) => { e.preventDefault(); this.showCard('register'); });
+        document.getElementById('showLogin')?.addEventListener('click', (e) => { e.preventDefault(); this.showCard('login'); });
+        document.getElementById('forgotPasswordLink')?.addEventListener('click', (e) => { e.preventDefault(); this.showCard('forgotPassword'); });
+        document.getElementById('backToLogin')?.addEventListener('click', (e) => { e.preventDefault(); this.showCard('login'); });
+        document.getElementById('loginForm')?.addEventListener('submit', this.handleLogin.bind(this));
+        document.getElementById('registerForm')?.addEventListener('submit', this.handleRegister.bind(this));
+        document.getElementById('forgotPasswordForm')?.addEventListener('submit', this.handleForgotPassword.bind(this));
+        document.querySelectorAll('.toggle-password').forEach(button => button.addEventListener('click', this.togglePasswordVisibility));
+        const passwordInput = document.getElementById('registerPassword');
+        if (passwordInput) {
+            passwordInput.addEventListener('input', this.updatePasswordStrength.bind(this));
+        }
+    }
+
+    showCard(cardName) {
+        this.loginCard.style.display = 'none';
+        this.registerCard.style.display = 'none';
+        this.forgotPasswordCard.style.display = 'none';
+
+        const card = document.getElementById(`${cardName}Card`);
+        if(card) card.style.display = 'block';
+    }
+
+    togglePasswordVisibility(e) {
+        const targetId = e.currentTarget.getAttribute('data-target');
+        const passwordInput = document.getElementById(targetId);
+        const icon = e.currentTarget.querySelector('i');
+        if (passwordInput.type === 'password') {
+            passwordInput.type = 'text';
+            icon.classList.replace('fa-eye', 'fa-eye-slash');
+        } else {
+            passwordInput.type = 'password';
+            icon.classList.replace('fa-eye-slash', 'fa-eye');
+        }
+    }
+
+    updatePasswordStrength(e) {
+        const password = e.target.value;
+        const strengthBars = document.querySelectorAll('.strength-segment');
+        const strengthText = document.querySelector('.strength-text');
+        strengthBars.forEach(bar => { bar.style.width = '0%'; bar.style.backgroundColor = '#e0e0e0'; });
+        if (!password) { strengthText.textContent = 'Password strength'; return; }
+        let strength = (password.length >= 8) + (/[\d]/.test(password)) + (/[!@#$%^&*(),.?":{}|<>]/.test(password));
+        const levels = {0: 'Too weak', 1: 'Weak', 2: 'Good', 3: 'Strong'};
+        const colors = {0: '#ff4d4f', 1: '#ffa940', 2: '#faad14', 3: '#52c41a'};
+        strengthText.textContent = levels[strength] || 'Strong';
+        for(let i = 0; i <= strength && i < 3; i++) {
+            strengthBars[i].style.width = '33.33%';
+            strengthBars[i].style.backgroundColor = colors[strength] || colors[3];
+        }
+    }
+
+    async handleLogin(e) {
+        e.preventDefault();
+        const email = document.getElementById('loginEmail').value;
+        const password = document.getElementById('loginPassword').value;
+        const rememberMe = document.getElementById('rememberMe').checked;
+        const submitButton = e.target.querySelector('button[type="submit"]');
+        const originalButtonHtml = submitButton.innerHTML;
+        try {
+            submitButton.disabled = true;
+            submitButton.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Signing in...';
+            const response = await fetch(`${API_BASE}/auth/login`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ email, password }) });
+            const data = await response.json();
+            if (!response.ok) throw new Error(data.errors ? data.errors[0].msg : 'Login failed');
+            this.authToken = data.token;
+            this.currentUser = data.user;
+            const storage = rememberMe ? localStorage : sessionStorage;
+            storage.setItem('authToken', this.authToken);
+            storage.setItem('user', JSON.stringify(this.currentUser));
+            this.redirectToApp();
+        } catch (error) {
+            this.showNotification('error', error.message);
+            submitButton.disabled = false;
+            submitButton.innerHTML = originalButtonHtml;
+        }
+    }
+
+    async handleRegister(e) {
+        e.preventDefault();
+        const firstName = document.getElementById('firstName').value;
+        const lastName = document.getElementById('lastName').value;
+        const email = document.getElementById('registerEmail').value;
+        const password = document.getElementById('registerPassword').value;
+        if (password !== document.getElementById('confirmPassword').value) { this.showNotification('error', 'Passwords do not match'); return; }
+        const submitButton = e.target.querySelector('button[type="submit"]');
+        const originalButtonHtml = submitButton.innerHTML;
+        try {
+            submitButton.disabled = true;
+            submitButton.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Creating account...';
+            const response = await fetch(`${API_BASE}/auth/register`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ firstName, lastName, email, password }) });
+            const data = await response.json();
+            if (!response.ok) throw new Error(data.errors ? data.errors[0].msg : 'Registration failed');
+            this.showNotification('success', 'Account created successfully! Please log in.');
+            this.showCard('login');
+            document.getElementById('loginEmail').value = email;
+        } catch (error) {
+            this.showNotification('error', error.message);
+        } finally {
+            submitButton.disabled = false;
+            submitButton.innerHTML = originalButtonHtml;
+        }
+    }
+
+    async handleForgotPassword(e) {
+        e.preventDefault();
+        const email = document.getElementById('resetEmail').value;
+        const submitButton = e.target.querySelector('button[type="submit"]');
+        const originalButtonHtml = submitButton.innerHTML;
+        try {
+            submitButton.disabled = true;
+            submitButton.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Sending...';
+            const response = await fetch(`${API_BASE}/auth/forgot-password`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ email }) });
+            const data = await response.json();
+            if (!response.ok) throw new Error(data.errors ? data.errors[0].msg : 'Failed to send reset link');
+            this.showNotification('success', data.msg);
+            setTimeout(() => this.showCard('login'), 2000);
+        } catch (error) {
+            this.showNotification('error', error.message);
+        } finally {
+            submitButton.disabled = false;
+            submitButton.innerHTML = originalButtonHtml;
+        }
+    }
+
+    async verifyTokenAndRedirect() {
+        try {
+            const response = await fetch(`${API_BASE}/auth/user`, { headers: { 'x-auth-token': this.authToken } });
+            if (response.ok) {
+                this.currentUser = await response.json();
+                this.redirectToApp();
+            } else {
+                this.logout();
+            }
+        } catch (error) {
+            console.error('Token verification failed:', error);
+            this.logout();
+        }
+    }
+
+    logout() {
+        localStorage.removeItem('authToken');
+        localStorage.removeItem('user');
+        sessionStorage.removeItem('authToken');
+        sessionStorage.removeItem('user');
+        this.authToken = null;
+        this.currentUser = null;
+        if (!document.querySelector('.auth-page')) {
+            window.location.href = 'auth.html';
+        }
+    }
+
+    redirectToApp() {
+        window.location.href = 'index.html';
+    }
+
+    checkUrlParams() {
+        const urlParams = new URLSearchParams(window.location.search);
+        if (urlParams.get('action') === 'reset-password' && urlParams.get('token')) {
+            this.showNotification('info', 'Please create a new password. This feature would be on a separate, dedicated page in a production app.');
+            // In a real app, you'd show a password reset form here.
+            // For now, we just show the login form.
+            this.showCard('login');
+        }
+    }
+
+    showNotification(type, message) {
+        // A more sophisticated notification system would be used in a real app.
+        alert(`${type.toUpperCase()}: ${message}`);
+    }
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+    window.authManager = new AuthManager();
 });
 
-// @route   POST api/auth/forgot-password
-// @desc    Send password reset email
-// @access  Public
-router.post(
-  '/forgot-password',
-  [
-    body('email', 'Please include a valid email').isEmail()
-  ],
-  async (req, res) => {
-    const errors = validationResult(req);
-    if (!errors.isEmpty()) {
-      return res.status(400).json({ errors: errors.array() });
-    }
-
-    const { email } = req.body;
-
-    try {
-      const user = await User.findOne({ email });
-
-      if (!user) {
-        return res.status(200).json({ msg: 'If an account exists with this email, a password reset link has been sent' });
-      }
-
-      // Generate reset token
-      const resetToken = jwt.sign(
-        { userId: user.id },
-        config.JWT_SECRET + user.password,
-        { expiresIn: '1h' }
-      );
-
-      // In a real app, you would send an email with the reset link
-      const resetUrl = `${process.env.CLIENT_URL}/reset-password?token=${resetToken}&id=${user.id}`;
-      
-      console.log('Password reset URL:', resetUrl); // For development
-
-      res.json({ msg: 'If an account exists with this email, a password reset link has been sent' });
-    } catch (err) {
-      console.error(err.message);
-      res.status(500).send('Server error');
-    }
-  }
-);
-
-// @route   POST api/auth/reset-password
-// @desc    Reset password
-// @access  Public
-router.post(
-  '/reset-password',
-  [
-    body('password', 'Please enter a password with 6 or more characters').isLength({ min: 6 }),
-    body('token', 'Token is required').exists(),
-    body('userId', 'User ID is required').exists()
-  ],
-  async (req, res) => {
-    const errors = validationResult(req);
-    if (!errors.isEmpty()) {
-      return res.status(400).json({ errors: errors.array() });
-    }
-
-    const { password, token, userId } = req.body;
-
-    try {
-      const user = await User.findById(userId);
-
-      if (!user) {
-        return res.status(400).json({ errors: [{ msg: 'Invalid or expired token' }] });
-      }
-
-      // Verify token
-      const decoded = jwt.verify(token, config.JWT_SECRET + user.password);
-
-      // Hash new password
-      const salt = await bcrypt.genSalt(10);
-      user.password = await bcrypt.hash(password, salt);
-      
-      await user.save();
-
-      res.json({ msg: 'Password updated successfully' });
-    } catch (err) {
-      console.error(err.message);
-      if (err.name === 'JsonWebTokenError') {
-        return res.status(400).json({ errors: [{ msg: 'Invalid or expired token' }] });
-      }
-      res.status(500).send('Server error');
-    }
-  }
-);
-
-module.exports = router;
+if (typeof module !== 'undefined' && typeof module.exports !== 'undefined') {
+    module.exports = AuthManager;
+}
