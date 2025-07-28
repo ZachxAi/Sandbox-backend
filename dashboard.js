@@ -1,181 +1,198 @@
-document.addEventListener('DOMContentLoaded', () => {
-    // Initialize AOS
-    AOS.init();
+class DashboardApp {
+    constructor() {
+        this.elements = {
+            navItems: document.querySelectorAll('.nav-item'),
+            pageContents: document.querySelectorAll('.page-content'),
+            pageTitle: document.getElementById('pageTitle'),
+            currentPage: document.getElementById('currentPage'),
+            chatToggle: document.getElementById('chatToggle'),
+            chatSidebar: document.getElementById('chatSidebar'),
+            chatClose: document.getElementById('chatClose'),
+            logoutBtn: document.getElementById('logoutBtn'),
+            quoteText: document.getElementById('quoteText'),
+            quoteAuthor: document.getElementById('quoteAuthor'),
+            chatInput: document.getElementById('chatInput'),
+            sendChatBtn: document.getElementById('sendChatBtn'),
+            chatMessages: document.getElementById('chatMessages'),
+            revenueChartCanvas: document.getElementById('revenueChart'),
+            // Quick Actions
+            generatePitchBtn: document.getElementById('generatePitchBtn'),
+            analyzeMarketBtn: document.getElementById('analyzeMarketBtn'),
+            financialForecastBtn: document.getElementById('financialForecastBtn'),
+            competitorAnalysisBtn: document.getElementById('competitorAnalysisBtn'),
+        };
 
-    const elements = {
-        sidebar: document.querySelector('.sidebar'),
-        navItems: document.querySelectorAll('.nav-item'),
-        pageContents: document.querySelectorAll('.page-content'),
-        pageTitle: document.getElementById('pageTitle'),
-        currentPage: document.getElementById('currentPage'),
-        chatToggle: document.getElementById('chatToggle'),
-        chatSidebar: document.getElementById('chatSidebar'),
-        chatClose: document.getElementById('chatClose'),
-        logoutBtn: document.getElementById('logoutBtn'),
-        quoteText: document.getElementById('quoteText'),
-        quoteAuthor: document.getElementById('quoteAuthor'),
-        // Financial Calculator
-        calculateBtn: document.getElementById('calculateBtn'),
-        initialInvestment: document.getElementById('initialInvestment'),
-        monthlyRevenue: document.getElementById('monthlyRevenue'),
-        monthlyExpenses: document.getElementById('monthlyExpenses'),
-        calculationResult: document.getElementById('calculationResult'),
-        // Chat
-        chatInput: document.getElementById('chatInput'),
-        sendChatBtn: document.getElementById('sendChatBtn'),
-        chatMessages: document.getElementById('chatMessages'),
-        // Charts
-        revenueChartCanvas: document.getElementById('revenueChart'),
-        cashFlowChartCanvas: document.getElementById('cashFlowChart'),
-    };
-
-    const quotes = [
-        { text: "The best way to predict the future is to create it.", author: "Peter Drucker" },
-        { text: "Innovation distinguishes between a leader and a follower.", author: "Steve Jobs" },
-        { text: "Your work is going to fill a large part of your life, and the only way to be truly satisfied is to do what you believe is great work.", author: "Steve Jobs" },
-        { text: "The secret of getting ahead is getting started.", author: "Mark Twain" },
-    ];
-
-    // --- Page Navigation ---
-    elements.navItems.forEach(item => {
-        item.addEventListener('click', (e) => {
-            e.preventDefault();
-            const page = item.getAttribute('data-page');
-            
-            elements.navItems.forEach(i => i.classList.remove('active'));
-            item.classList.add('active');
-
-            elements.pageContents.forEach(content => content.classList.remove('active'));
-            document.getElementById(`${page}-page`).classList.add('active');
-
-            elements.pageTitle.textContent = item.querySelector('span').textContent + ' Dashboard';
-            elements.currentPage.textContent = item.querySelector('span').textContent;
-        });
-    });
-
-    // --- Chat Sidebar --- 
-    elements.chatToggle.addEventListener('click', () => elements.chatSidebar.classList.add('open'));
-    elements.chatClose.addEventListener('click', () => elements.chatSidebar.classList.remove('open'));
-
-    // --- Logout ---
-    if (elements.logoutBtn) {
-        elements.logoutBtn.addEventListener('click', () => {
-            // Assuming auth.js has a logout function
-            if(window.authManager) {
-                window.authManager.logout();
-            }
-        });
+        this.quotes = [
+            { text: "The best way to predict the future is to create it.", author: "Peter Drucker" },
+            { text: "Innovation distinguishes between a leader and a follower.", author: "Steve Jobs" },
+            { text: "Your work is going to fill a large part of your life, and the only way to be truly satisfied is to do what you believe is great work.", author: "Steve Jobs" },
+            { text: "The secret of getting ahead is getting started.", author: "Mark Twain" },
+        ];
+        
+        this.init();
     }
 
-    // --- Quote Rotator ---
-    let quoteIndex = 0;
-    const changeQuote = () => {
-        quoteIndex = (quoteIndex + 1) % quotes.length;
-        elements.quoteText.style.opacity = 0;
-        elements.quoteAuthor.style.opacity = 0;
-        setTimeout(() => {
-            elements.quoteText.textContent = `"${quotes[quoteIndex].text}"`;
-            elements.quoteAuthor.textContent = `- ${quotes[quoteIndex].author}`;
-            elements.quoteText.style.opacity = 1;
-            elements.quoteAuthor.style.opacity = 1;
-        }, 500);
-    };
-    setInterval(changeQuote, 7000);
-
-    // --- Financial Calculator ---
-    if (elements.calculateBtn) {
-        elements.calculateBtn.addEventListener('click', () => {
-            const investment = parseFloat(elements.initialInvestment.value);
-            const revenue = parseFloat(elements.monthlyRevenue.value);
-            const expenses = parseFloat(elements.monthlyExpenses.value);
-
-            if (isNaN(investment) || isNaN(revenue) || isNaN(expenses)) {
-                elements.calculationResult.textContent = 'Please enter valid numbers.';
-                return;
-            }
-
-            const monthlyProfit = revenue - expenses;
-            if (monthlyProfit <= 0) {
-                elements.calculationResult.textContent = 'ROI cannot be calculated with non-positive profit.';
-                return;
-            }
-
-            const roi = (investment / monthlyProfit).toFixed(1);
-            elements.calculationResult.textContent = `Break-even in ${roi} months.`;
-        });
+    init() {
+        AOS.init();
+        this.bindEvents();
+        this.initCharts();
+        this.startQuoteRotator();
     }
 
-    // --- Charting ---
-    const createChart = (canvas, type, data, options) => {
-        if(canvas) new Chart(canvas.getContext('2d'), { type, data, options });
-    };
+    bindEvents() {
+        // Page Navigation
+        this.elements.navItems.forEach(item => {
+            item.addEventListener('click', e => this.handleNavigation(e));
+        });
 
-    const chartOptions = {
-        responsive: true,
-        maintainAspectRatio: false,
-        plugins: { legend: { display: false } },
-        scales: {
-            x: { ticks: { color: 'white' }, grid: { color: 'rgba(255,255,255,0.1)' } },
-            y: { ticks: { color: 'white' }, grid: { color: 'rgba(255,255,255,0.1)' } }
+        // Chat Sidebar
+        this.elements.chatToggle.addEventListener('click', () => this.elements.chatSidebar.classList.add('open'));
+        this.elements.chatClose.addEventListener('click', () => this.elements.chatSidebar.classList.remove('open'));
+
+        // Logout
+        if (this.elements.logoutBtn) {
+            this.elements.logoutBtn.addEventListener('click', () => {
+                if (window.authManager) window.authManager.logout();
+            });
         }
-    };
 
-    createChart(elements.revenueChartCanvas, 'line', {
-        labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
-        datasets: [{
-            label: 'Revenue',
-            data: [12000, 19000, 15000, 24000, 22000, 30000],
-            borderColor: '#58A6FF',
-            tension: 0.4,
-            fill: true,
-            backgroundColor: 'rgba(88, 166, 255, 0.1)'
-        }]
-    }, chartOptions);
+        // Chat
+        this.elements.sendChatBtn.addEventListener('click', () => this.handleSendChat());
+        this.elements.chatInput.addEventListener('keypress', e => {
+            if (e.key === 'Enter') this.handleSendChat();
+        });
 
-    createChart(elements.cashFlowChartCanvas, 'bar', {
-        labels: ['Q1', 'Q2', 'Q3', 'Q4'],
-        datasets: [
-            { label: 'Income', data: [50000, 59000, 70000, 81000], backgroundColor: '#2E7D32' },
-            { label: 'Expenses', data: [42000, 45000, 52000, 58000], backgroundColor: '#C62828' }
-        ]
-    }, chartOptions);
+        // Quick Actions
+        this.bindQuickActions();
+    }
 
-    // --- Chat Functionality (Placeholder) ---
-    const addMessageToChat = (text, sender) => {
+    bindQuickActions() {
+        const actions = {
+            generatePitchBtn: 'Generating pitch deck...',
+            analyzeMarketBtn: 'Analyzing market...',
+            financialForecastBtn: 'Creating financial forecast...',
+            competitorAnalysisBtn: 'Analyzing competitors...'
+        };
+
+        for (const btnId in actions) {
+            if (this.elements[btnId]) {
+                this.elements[btnId].addEventListener('click', () => {
+                    alert(`Feature coming soon: ${actions[btnId]}`);
+                });
+            }
+        }
+    }
+
+    handleNavigation(e) {
+        e.preventDefault();
+        const item = e.currentTarget;
+        const page = item.getAttribute('data-page');
+
+        this.elements.navItems.forEach(i => i.classList.remove('active'));
+        item.classList.add('active');
+
+        this.elements.pageContents.forEach(content => content.classList.remove('active'));
+        const activePage = document.getElementById(`${page}-page`);
+        if (activePage) activePage.classList.add('active');
+
+        this.elements.pageTitle.textContent = item.querySelector('span').textContent + ' Dashboard';
+        this.elements.currentPage.textContent = item.querySelector('span').textContent;
+    }
+
+    startQuoteRotator() {
+        let quoteIndex = 0;
+        setInterval(() => {
+            quoteIndex = (quoteIndex + 1) % this.quotes.length;
+            this.elements.quoteText.style.opacity = 0;
+            this.elements.quoteAuthor.style.opacity = 0;
+            setTimeout(() => {
+                this.elements.quoteText.textContent = `"${this.quotes[quoteIndex].text}"`;
+                this.elements.quoteAuthor.textContent = `- ${this.quotes[quoteIndex].author}`;
+                this.elements.quoteText.style.opacity = 1;
+                this.elements.quoteAuthor.style.opacity = 1;
+            }, 500);
+        }, 7000);
+    }
+
+    initCharts() {
+        const chartOptions = {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: { legend: { display: false } },
+            scales: {
+                x: { ticks: { color: '#C9D1D9' }, grid: { color: 'rgba(255,255,255,0.1)' } },
+                y: { ticks: { color: '#C9D1D9' }, grid: { color: 'rgba(255,255,255,0.1)' } }
+            }
+        };
+
+        if (this.elements.revenueChartCanvas) {
+            new Chart(this.elements.revenueChartCanvas.getContext('2d'), {
+                type: 'line',
+                data: {
+                    labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
+                    datasets: [{
+                        label: 'Revenue',
+                        data: [12000, 19000, 15000, 24000, 22000, 30000],
+                        borderColor: '#58A6FF',
+                        tension: 0.4,
+                        fill: true,
+                        backgroundColor: 'rgba(88, 166, 255, 0.1)'
+                    }]
+                },
+                options: chartOptions
+            });
+        }
+    }
+
+    addMessageToChat(text, sender, isLoading = false) {
         const messageEl = document.createElement('div');
         messageEl.classList.add('message', `${sender}-message`);
+        
+        let content = `<p>${text}</p>`;
+        if (isLoading) {
+            content = `<div class="typing-indicator"><span></span><span></span><span></span></div>`;
+        }
+
         messageEl.innerHTML = `
             <div class="message-avatar"><i class="fas fa-${sender === 'ai' ? 'robot' : 'user'}"></i></div>
-            <div class="message-content"><p>${text}</p></div>
+            <div class="message-content">${content}</div>
         `;
-        elements.chatMessages.appendChild(messageEl);
-        elements.chatMessages.scrollTop = elements.chatMessages.scrollHeight;
-    };
+        this.elements.chatMessages.appendChild(messageEl);
+        this.elements.chatMessages.scrollTop = this.elements.chatMessages.scrollHeight;
+        return messageEl;
+    }
 
-    const handleSendChat = async () => {
-        const message = elements.chatInput.value.trim();
+    async handleSendChat() {
+        const message = this.elements.chatInput.value.trim();
         if (!message) return;
 
-        addMessageToChat(message, 'user');
-        elements.chatInput.value = '';
+        this.addMessageToChat(message, 'user');
+        this.elements.chatInput.value = '';
+        this.elements.chatInput.disabled = true;
 
-        // API call to your backend
+        const loadingIndicator = this.addMessageToChat('', 'ai', true);
+
         try {
             const response = await fetch('/api/chat', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ message: message })
             });
+            if (!response.ok) throw new Error('Network response was not ok.');
             const data = await response.json();
-            addMessageToChat(data.reply, 'ai');
+            loadingIndicator.remove();
+            this.addMessageToChat(data.response, 'ai');
         } catch (error) {
             console.error('Chat API error:', error);
-            addMessageToChat('Sorry, I am having trouble connecting.', 'ai');
+            loadingIndicator.remove();
+            this.addMessageToChat('Sorry, I am having trouble connecting. Please try again.', 'ai');
+        } finally {
+            this.elements.chatInput.disabled = false;
+            this.elements.chatInput.focus();
         }
-    };
+    }
+}
 
-    elements.sendChatBtn.addEventListener('click', handleSendChat);
-    elements.chatInput.addEventListener('keypress', (e) => {
-        if (e.key === 'Enter') handleSendChat();
-    });
+document.addEventListener('DOMContentLoaded', () => {
+    window.dashboardApp = new DashboardApp();
 });
