@@ -8,6 +8,7 @@ const mongoose = require('mongoose');
 require('dotenv').config();
 const config = require('./config');
 const passport = require('passport');
+const { OpenAI } = require('openai');
 
 const app = express();
 const PORT = config.PORT || 3000;
@@ -49,6 +50,11 @@ app.use(passport.initialize());
 // Serve static files
 app.use(express.static(path.join(__dirname)));
 
+// Initialize OpenAI client
+const openai = new OpenAI({
+    apiKey: process.env.OPENAI_API_KEY
+});
+
 // Define API Routes
 app.use('/api/auth', require('./routes/auth'));
 app.use('/api/workspaces', require('./routes/workspaces'));
@@ -57,11 +63,7 @@ app.use('/api/workspaces', require('./routes/workspaces'));
 const projectsRouter = require('./routes/projects');
 app.use('/api/workspaces/:workspaceId/projects', projectsRouter);
 
-// ChatGPT API integration
-const OpenAI = require('openai');
-const openai = new OpenAI({
-    apiKey: process.env.OPENAI_API_KEY
-});
+// Chat API endpoint
 
 // AI Chat endpoint
 app.post('/api/chat', async (req, res) => {

@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SandBox - AI Dashboard</title>
+    <link rel="stylesheet" href="dashboard.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/aos/2.3.4/aos.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+    <div class="dashboard-container">
+        <!-- Sidebar Navigation -->
+        <nav class="sidebar" data-aos="slide-right">
+            <div class="sidebar-header">
+                <div class="logo">
+                    <i class="fas fa-cube"></i>
+                    <span>SandBox</span>
+                </div>
+            </div>
+            
+            <div class="nav-menu">
+                <div class="nav-section">
+                    <h3>Startup Journey</h3>
+                    <a href="#" class="nav-item active" data-page="problem-definition">
+                        <i class="fas fa-lightbulb"></i>
+                        <span>Problem Definition</span>
+                    </a>
+                    <a href="#" class="nav-item" data-page="problem-validation">
+                        <i class="fas fa-check-double"></i>
+                        <span>Problem Validation</span>
+                    </a>
+                    <a href="#" class="nav-item" data-page="idea-refinement">
+                        <i class="fas fa-drafting-compass"></i>
+                        <span>Idea Refinement</span>
+                    </a>
+                    <a href="#" class="nav-item" data-page="customer-segments">
+                        <i class="fas fa-users"></i>
+                        <span>Customer Segments</span>
+                    </a>
+                    <a href="#" class="nav-item" data-page="customer-examples">
+                        <i class="fas fa-user-friends"></i>
+                        <span>Customer Examples</span>
+                    </a>
+                    <a href="#" class="nav-item" data-page="elevator-pitch">
+                        <i class="fas fa-microphone"></i>
+                        <span>Elevator Pitch</span>
+                    </a>
+                    <a href="#" class="nav-item" data-page="financial-forecasting">
+                        <i class="fas fa-calculator"></i>
+                        <span>Financial Forecasting</span>
+                    </a>
+                    <a href="#" class="nav-item" data-page="pitch-deck">
+                        <i class="fas fa-file-powerpoint"></i>
+                        <span>Pitch Deck</span>
+                    </a>
+                    <a href="#" class="nav-item" data-page="business-plan">
+                        <i class="fas fa-book"></i>
+                        <span>Business Plan</span>
+                    </a>
+                    <a href="#" class="nav-item" data-page="additional-docs">
+                        <i class="fas fa-file-alt"></i>
+                        <span>Additional Docs</span>
+                    </a>
+                    <a href="#" class="nav-item" data-page="funding-inquiry">
+                        <i class="fas fa-money-bill-wave"></i>
+                        <span>Funding Inquiry</span>
+                    </a>
+                </div>
+            </div>
+            
+            <div class="sidebar-footer">
+                <div class="user-profile">
+                    <div class="avatar">
+                        <i class="fas fa-user"></i>
+                    </div>
+                    <div class="user-info">
+                        <span class="name" id="userName">Welcome</span>
+                        <span class="role">Entrepreneur</span>
+                    </div>
+                </div>
+                <button class="btn btn-icon" id="logoutBtn" title="Logout">
+                    <i class="fas fa-sign-out-alt"></i>
+                </button>
+            </div>
+        </nav>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Top Bar -->
+            <header class="top-bar">
+                <div class="breadcrumbs">
+                    <span>Dashboard</span>
+                    <i class="fas fa-chevron-right"></i>
+                    <span id="currentPage">Problem Definition</span>
+                </div>
+                
+                <div class="top-bar-actions">
+                    <div class="search-bar">
+                        <i class="fas fa-search"></i>
+                        <input type="text" placeholder="Search...">
+                    </div>
+                    <button class="btn btn-primary" id="saveProgressBtn">
+                        <i class="fas fa-save"></i>
+                        Save Progress
+                    </button>
+                    <button class="btn btn-icon" id="notificationsBtn">
+                        <i class="fas fa-bell"></i>
+                        <span class="badge">3</span>
+                    </button>
+                </div>
+            </header>
+
+            <!-- Dashboard Content -->
+            <div class="dashboard-content">
+                <!-- Problem Definition Page -->
+                <div class="page-content active" id="problem-definition-page">
+                    <div class="page-header">
+                        <h1>Problem Definition</h1>
+                        <p>Clearly define the problem you're solving and why it matters</p>
+                    </div>
+                    
+                    <div class="grid-layout">
+                        <div class="card">
+                            <div class="card-header">
+                                <h3>Problem Statement</h3>
+                                <i class="fas fa-edit"></i>
+                            </div>
+                            <div class="card-body">
+                                <textarea class="form-control" rows="4" placeholder="Describe the problem you're trying to solve..."></textarea>
+                                <div class="card-actions">
+                                    <button class="btn btn-primary">Save</button>
+                                    <button class="btn btn-link">Generate with AI</button>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="card">
+                            <div class="card-header">
+                                <h3>Target Audience</h3>
+                                <i class="fas fa-users"></i>
+                            </div>
+                            <div class="card-body">
+                                <div class="form-group">
+                                    <label>Who experiences this problem?</label>
+                                    <input type="text" class="form-control" placeholder="E.g., Small business owners, students...">
+                                </div>
+                                <div class="form-group">
+                                    <label>How do they currently solve this problem?</label>
+                                    <input type="text" class="form-control" placeholder="Current solutions...">
+                                </div>
+                                <button class="btn btn-primary">Save</button>
+                            </div>
+                        </div>
+                        
+                        <div class="card wide">
+                            <div class="card-header">
+                                <h3>Problem Validation</h3>
+                                <div class="card-actions">
+                                    <button class="btn btn-sm btn-outline">
+                                        <i class="fas fa-plus"></i> Add Validation
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="card-body">
+                                <div class="empty-state">
+                                    <i class="fas fa-clipboard-check"></i>
+                                    <h4>No validation data yet</h4>
+                                    <p>Add customer interviews, surveys, or market research to validate this problem.</p>
+                                    <button class="btn btn-primary">Start Validating</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Other pages will be dynamically shown/hidden based on navigation -->
+                <div class="page-content" id="problem-validation-page">
+                    <!-- Content for Problem Validation page -->
+                </div>
+                
+                <div class="page-content" id="idea-refinement-page">
+                    <!-- Content for Idea Refinement page -->
+                </div>
+                
+                <!-- Add more page content divs for other sections -->
+                
+                <div class="page-content" id="funding-inquiry-page">
+                    <!-- Content for Funding Inquiry page -->
+                </div>
+            </div>
+        </main>
+
+        <!-- AI Assistant Panel -->
+        <aside class="ai-assistant" id="aiAssistant">
+            <div class="ai-header">
+                <h3>AI Assistant</h3>
+                <button class="btn btn-icon" id="minimizeChat">
+                    <i class="fas fa-minus"></i>
+                </button>
+            </div>
+            <div class="ai-conversation" id="aiChat">
+                <div class="message ai">
+                    <div class="avatar">AI</div>
+                    <div class="content">
+                        <p>Hi there! I'm your AI assistant. How can I help you with your problem definition today?</p>
+                    </div>
+                </div>
+            </div>
+            <div class="ai-input">
+                <input type="text" placeholder="Ask me anything..." id="aiInput">
+                <button class="btn btn-icon" id="sendMessage">
+                    <i class="fas fa-paper-plane"></i>
+                </button>
+            </div>
+        </aside>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/aos/2.3.4/aos.js"></script>
+    <script src="dashboard.js"></script>
+    <script>
+        // Initialize AOS animations
+        AOS.init({
+            duration: 800,
+            easing: 'ease-in-out',
+            once: true
+        });
+        
+        // Initialize the dashboard
+        document.addEventListener('DOMContentLoaded', () => {
+            const dashboard = new DashboardApp();
+        });
+    </script>
+</body>
+</html>
