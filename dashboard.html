@@ -1,0 +1,319 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SandBox - AI Dashboard</title>
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/aos/2.3.4/aos.css">
+</head>
+<body>
+    <div class="dashboard-container">
+        <!-- Sidebar Navigation -->
+        <nav class="sidebar" data-aos="slide-right">
+            <div class="sidebar-header">
+                <div class="logo">
+                    <i class="fas fa-cube"></i>
+                    <span>SandBox</span>
+                </div>
+            </div>
+            
+            <div class="nav-menu">
+                <div class="nav-section">
+                    <h3>Dashboards</h3>
+                    <a href="#" class="nav-item active" data-page="overview">
+                        <i class="fas fa-chart-pie"></i>
+                        <span>Overview</span>
+                    </a>
+                    <a href="#" class="nav-item" data-page="financial">
+                        <i class="fas fa-chart-line"></i>
+                        <span>Financial Analysis</span>
+                    </a>
+                    <a href="#" class="nav-item" data-page="market">
+                        <i class="fas fa-bullseye"></i>
+                        <span>Market Research</span>
+                    </a>
+                    <a href="#" class="nav-item" data-page="business">
+                        <i class="fas fa-briefcase"></i>
+                        <span>Business Planning</span>
+                    </a>
+                </div>
+                
+                <div class="nav-section">
+                    <h3>Tools</h3>
+                    <a href="#" class="nav-item" data-page="ai-assistant">
+                        <i class="fas fa-robot"></i>
+                        <span>AI Assistant</span>
+                    </a>
+                    <a href="#" class="nav-item" data-page="pitch-deck">
+                        <i class="fas fa-presentation"></i>
+                        <span>Pitch Deck</span>
+                    </a>
+                    <a href="#" class="nav-item" data-page="analytics">
+                        <i class="fas fa-analytics"></i>
+                        <span>Analytics</span>
+                    </a>
+                </div>
+            </div>
+            
+            <div class="sidebar-footer">
+                <div class="user-profile">
+                    <div class="avatar">
+                        <i class="fas fa-user"></i>
+                    </div>
+                    <div class="user-info">
+                        <span class="name" id="userName">John Doe</span>
+                        <span class="role">Entrepreneur</span>
+                    </div>
+                </div>
+                <button class="logout-btn" id="logoutBtn">
+                    <i class="fas fa-sign-out-alt"></i>
+                </button>
+            </div>
+        </nav>
+
+        <!-- Main Content Area -->
+        <main class="main-dashboard">
+            <!-- Top Header -->
+            <header class="dashboard-header">
+                <div class="header-left">
+                    <h1 id="pageTitle">Overview Dashboard</h1>
+                    <div class="breadcrumb">
+                        <span>Dashboard</span>
+                        <i class="fas fa-chevron-right"></i>
+                        <span id="currentPage">Overview</span>
+                    </div>
+                </div>
+                
+                <div class="header-right">
+                    <div class="quote-container" id="quoteContainer">
+                        <div class="quote-text" id="quoteText">
+                            "The best way to predict the future is to create it."
+                        </div>
+                        <div class="quote-author" id="quoteAuthor">- Peter Drucker</div>
+                    </div>
+                    
+                    <button class="chat-toggle" id="chatToggle">
+                        <i class="fas fa-comments"></i>
+                        <span>AI Chat</span>
+                    </button>
+                </div>
+            </header>
+
+            <!-- Dashboard Content -->
+            <div class="dashboard-content">
+                <!-- Overview Page -->
+                <div class="page-content active" id="overview-page">
+                    <div class="dashboard-grid">
+                        <div class="dashboard-card" data-aos="fade-up" data-aos-delay="100">
+                            <div class="card-header">
+                                <h3>Business Health Score</h3>
+                                <i class="fas fa-heart-pulse"></i>
+                            </div>
+                            <div class="card-content">
+                                <div class="score-circle">
+                                    <div class="score-value">85</div>
+                                    <div class="score-label">Score</div>
+                                </div>
+                                <div class="score-details">
+                                    <div class="score-item">
+                                        <span>Market Fit</span>
+                                        <div class="progress-bar">
+                                            <div class="progress" style="width: 80%"></div>
+                                        </div>
+                                    </div>
+                                    <div class="score-item">
+                                        <span>Financial Health</span>
+                                        <div class="progress-bar">
+                                            <div class="progress" style="width: 90%"></div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="dashboard-card" data-aos="fade-up" data-aos-delay="200">
+                            <div class="card-header">
+                                <h3>Quick Actions</h3>
+                                <i class="fas fa-bolt"></i>
+                            </div>
+                            <div class="card-content">
+                                <div class="action-grid">
+                                    <button class="action-btn" id="generatePitchBtn">
+                                        <i class="fas fa-presentation"></i>
+                                        <span>Generate Pitch</span>
+                                    </button>
+                                    <button class="action-btn" id="analyzeMarketBtn">
+                                        <i class="fas fa-search"></i>
+                                        <span>Market Analysis</span>
+                                    </button>
+                                    <button class="action-btn" id="financialForecastBtn">
+                                        <i class="fas fa-chart-line"></i>
+                                        <span>Financial Forecast</span>
+                                    </button>
+                                    <button class="action-btn" id="competitorAnalysisBtn">
+                                        <i class="fas fa-users"></i>
+                                        <span>Competitor Analysis</span>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="dashboard-card wide" data-aos="fade-up" data-aos-delay="300">
+                            <div class="card-header">
+                                <h3>Revenue Projection</h3>
+                                <i class="fas fa-chart-area"></i>
+                            </div>
+                            <div class="card-content">
+                                <canvas id="revenueChart"></canvas>
+                            </div>
+                        </div>
+
+                        <div class="dashboard-card" data-aos="fade-up" data-aos-delay="400">
+                            <div class="card-header">
+                                <h3>Recent Activity</h3>
+                                <i class="fas fa-clock"></i>
+                            </div>
+                            <div class="card-content">
+                                <div class="activity-list" id="activityList">
+                                    <div class="activity-item">
+                                        <div class="activity-icon">
+                                            <i class="fas fa-file-alt"></i>
+                                        </div>
+                                        <div class="activity-content">
+                                            <span>Business plan updated</span>
+                                            <small>2 hours ago</small>
+                                        </div>
+                                    </div>
+                                    <div class="activity-item">
+                                        <div class="activity-icon">
+                                            <i class="fas fa-chart-bar"></i>
+                                        </div>
+                                        <div class="activity-content">
+                                            <span>Financial model created</span>
+                                            <small>5 hours ago</small>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Financial Analysis Page -->
+                <div class="page-content" id="financial-page">
+                    <div class="dashboard-grid">
+                        <div class="dashboard-card" data-aos="fade-up">
+                            <div class="card-header">
+                                <h3>Financial Calculator</h3>
+                                <i class="fas fa-calculator"></i>
+                            </div>
+                            <div class="card-content">
+                                <div class="calculator-form">
+                                    <div class="form-group">
+                                        <label>Initial Investment ($)</label>
+                                        <input type="number" id="initialInvestment" placeholder="50000">
+                                    </div>
+                                    <div class="form-group">
+                                        <label>Monthly Revenue ($)</label>
+                                        <input type="number" id="monthlyRevenue" placeholder="10000">
+                                    </div>
+                                    <div class="form-group">
+                                        <label>Monthly Expenses ($)</label>
+                                        <input type="number" id="monthlyExpenses" placeholder="7000">
+                                    </div>
+                                    <button class="calculate-btn" id="calculateBtn">Calculate ROI</button>
+                                    <div class="result" id="calculationResult"></div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="dashboard-card wide" data-aos="fade-up" data-aos-delay="200">
+                            <div class="card-header">
+                                <h3>Cash Flow Analysis</h3>
+                                <i class="fas fa-money-bill-wave"></i>
+                            </div>
+                            <div class="card-content">
+                                <canvas id="cashFlowChart"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Other pages will be similar structure -->
+                <div class="page-content" id="market-page">
+                    <div class="dashboard-grid">
+                        <div class="dashboard-card">
+                            <div class="card-header">
+                                <h3>Market Size Calculator</h3>
+                                <i class="fas fa-globe"></i>
+                            </div>
+                            <div class="card-content">
+                                <p>Market research tools coming soon...</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="page-content" id="business-page">
+                    <div class="dashboard-grid">
+                        <div class="dashboard-card">
+                            <div class="card-header">
+                                <h3>Business Model Canvas</h3>
+                                <i class="fas fa-sitemap"></i>
+                            </div>
+                            <div class="card-content">
+                                <p>Business planning tools coming soon...</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+
+        <!-- AI Chat Sidebar -->
+        <div class="chat-sidebar" id="chatSidebar">
+            <div class="chat-header">
+                <h3>AI Assistant</h3>
+                <button class="chat-close" id="chatClose">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            
+            <div class="chat-messages" id="chatMessages">
+                <div class="message ai-message">
+                    <div class="message-avatar">
+                        <i class="fas fa-robot"></i>
+                    </div>
+                    <div class="message-content">
+                        <p>Hello! I'm your AI assistant. How can I help you with your business today?</p>
+                        <span class="message-time">Just now</span>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="chat-input-container">
+                <div class="chat-suggestions" id="chatSuggestions">
+                    <button class="suggestion-btn">Analyze my business model</button>
+                    <button class="suggestion-btn">Create financial projections</button>
+                    <button class="suggestion-btn">Market research insights</button>
+                </div>
+                <div class="chat-input-wrapper">
+                    <input type="text" id="chatInput" placeholder="Ask me anything about your business...">
+                    <button id="sendChatBtn">
+                        <i class="fas fa-paper-plane"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/aos/2.3.4/aos.js"></script>
+    <script src="auth.js"></script>
+    <script src="app.js"></script>
+</body>
+</html>

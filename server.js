@@ -64,7 +64,7 @@ const openai = new OpenAI({
 });
 
 // AI Chat endpoint
-app.post('/api/chat/ai-response', async (req, res) => {
+app.post('/api/chat', async (req, res) => {
     try {
         const { message, context, step } = req.body;
         
@@ -346,6 +346,10 @@ app.get('/api/quotes/:category?', (req, res) => {
 });
 
 // Serve main application
+app.get('/dashboard', (req, res) => {
+    res.sendFile(path.join(__dirname, 'dashboard.html'));
+});
+
 app.get('/', (req, res) => {
     res.sendFile(path.join(__dirname, 'index.html'));
 });
