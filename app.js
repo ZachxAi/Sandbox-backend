@@ -384,8 +384,21 @@ class SandBoxApp {
         }
     }
 
-    processUserResponse(message) {
-        this.completeCurrentStep();
+    processCurrentStep(selectedStepIndex = null) {
+        // Allow navigation to any step
+        if (typeof selectedStepIndex === 'number') {
+            this.currentStep = selectedStepIndex;
+        }
+        const step = this.workflowSteps[this.currentStep];
+        if (!step) return;
+        // Clear chat for new step
+        if (this.elements.chatMessages) this.elements.chatMessages.innerHTML = '';
+        // Add a prompt for the step
+        this.addAIMessage(`You are now on step ${this.currentStep + 1}: ${step.title}. Please describe your thoughts or progress for this step. The AI will help you interactively.`);
+        // Enable input
+        if (this.elements.userInput) this.elements.userInput.disabled = false;
+        if (this.elements.sendBtn) this.elements.sendBtn.disabled = false;
+        this.markStepActive(this.currentStep + 1);
     }
 
     completeCurrentStep() {
@@ -397,36 +410,6 @@ class SandBoxApp {
             } else {
                 this.showResultsDashboard();
             }
-        }
-    }
-
-    processCurrentStep() {
-        const step = this.workflowSteps[this.currentStep];
-        if (!step) return;
-        
-        switch (step.type) {
-            case 'question':
-                this.addAIMessage("What is the core problem you are trying to solve? Describe it in a few sentences.");
-                break;
-            case 'motivation':
-                this.addAIMessage("Great progress! Keep going - you're building something amazing.");
-                setTimeout(() => this.completeCurrentStep(), 2000);
-                break;
-            case 'validation':
-                this.addAIMessage("How have you validated this problem? Have you talked to potential customers?");
-                break;
-            case 'refinement':
-                this.addAIMessage("Let's refine your idea. What is your proposed solution?");
-                break;
-            case 'segments':
-                this.addAIMessage("Who are your target customers? Describe your ideal customer segment.");
-                break;
-            case 'examples':
-                this.addAIMessage("Can you give a specific example of a potential customer and their story?");
-                break;
-            default:
-                this.addAIMessage("Let's move to the next step.");
-                setTimeout(() => this.completeCurrentStep(), 1000);
         }
     }
 
@@ -453,12 +436,16 @@ class SandBoxApp {
     renderSteps() {
         if (!this.elements.stepsList) return;
         this.elements.stepsList.innerHTML = '';
-        this.workflowSteps.forEach(step => {
-            const stepEl = document.createElement('div');
-            stepEl.className = 'step-item';
-            stepEl.textContent = step.title;
-            stepEl.dataset.step = step.id;
-            this.elements.stepsList.appendChild(stepEl);
+        this.workflowSteps.forEach((step, idx) => {
+            const stepItem = document.createElement('div');
+            stepItem.className = 'step-item';
+            stepItem.textContent = `${idx + 1}. ${step.title}`;
+            stepItem.dataset.stepIndex = idx;
+            if (idx === this.currentStep) stepItem.classList.add('active');
+            stepItem.addEventListener('click', () => {
+                this.processCurrentStep(idx);
+            });
+            this.elements.stepsList.appendChild(stepItem);
         });
     }
 
