@@ -218,6 +218,63 @@ app.post('/api/export-plan', async (req, res) => {
     }
 });
 
+// Generate a PowerPoint pitch deck
+// To use: npm install pptxgenjs
+const PPTX = require('pptxgenjs');
+
+app.post('/api/generate-pitch-deck', async (req, res) => {
+    try {
+        const { businessPlan } = req.body;
+        const pptx = new PPTX();
+        pptx.addSlide().addText('SandBox Pitch Deck', { x:1, y:1, fontSize:32, bold:true });
+        pptx.addSlide().addText(`Problem: ${businessPlan.problemStatement || 'Not provided'}`, { x:1, y:1, fontSize:20 });
+        pptx.addSlide().addText(`Solution: ${businessPlan.solutionDetails || 'Not provided'}`, { x:1, y:1, fontSize:20 });
+        pptx.addSlide().addText(`Target Market: ${businessPlan.customerSegments || 'Not provided'}`, { x:1, y:1, fontSize:20 });
+        pptx.addSlide().addText(`Financials: ${businessPlan.financialSummary || 'Not provided'}`, { x:1, y:1, fontSize:20 });
+        // Add more slides as needed
+        const fileName = 'SandBox_Pitch_Deck.pptx';
+        await pptx.write('nodebuffer').then(buffer => {
+            res.setHeader('Content-Disposition', `attachment; filename="${fileName}"`);
+            res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.presentationml.presentation');
+            res.send(buffer);
+        });
+    } catch (error) {
+        console.error('Pitch deck generation error:', error);
+        res.status(500).json({ error: 'Failed to generate pitch deck' });
+    }
+});
+
+// To use: npm install jspdf
+const { jsPDF } = require('jspdf');
+
+app.post('/api/generate-financial-report', async (req, res) => {
+    try {
+        const { projections } = req.body;
+        const doc = new jsPDF();
+        doc.setFontSize(18);
+        doc.text('SandBox Financial Report', 20, 20);
+        doc.setFontSize(12);
+        let y = 40;
+        for (const year of Object.keys(projections)) {
+            doc.text(`${year.toUpperCase()}:`, 20, y);
+            y += 8;
+            const data = projections[year];
+            doc.text(`Revenue: $${data.revenue}`, 30, y); y += 8;
+            doc.text(`Costs: $${data.costs}`, 30, y); y += 8;
+            doc.text(`Profit: $${data.profit}`, 30, y); y += 8;
+            doc.text(`Customers: ${data.customers}`, 30, y); y += 12;
+        }
+        const fileName = 'SandBox_Financial_Report.pdf';
+        const pdfBuffer = doc.output('arraybuffer');
+        res.setHeader('Content-Disposition', `attachment; filename="${fileName}"`);
+        res.setHeader('Content-Type', 'application/pdf');
+        res.send(Buffer.from(pdfBuffer));
+    } catch (error) {
+        console.error('Financial report generation error:', error);
+        res.status(500).json({ error: 'Failed to generate financial report' });
+    }
+});
+
 // Get motivational quotes
 app.get('/api/quotes/:category?', (req, res) => {
     const { category } = req.params;

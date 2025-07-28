@@ -40,6 +40,29 @@ class SandBoxApp {
         console.log("SandBoxApp constructed", this.elements);
         this.bindEvents();
         this.init();
+        this.stepQuotes = [
+            "The best way to predict the future is to create it. – Peter Drucker",
+            "Innovation distinguishes between a leader and a follower. – Steve Jobs",
+            "Validate your assumptions before betting the company. – Eric Ries",
+            "Perseverance is not a long race; it is many short races one after the other. – Walter Elliot",
+            "Ideas are easy. Implementation is hard. – Guy Kawasaki",
+            "Creativity is intelligence having fun. – Albert Einstein",
+            "The customer’s perception is your reality. – Kate Zabriskie",
+            "Get closer than ever to your customers. – Steve Jobs",
+            "Your most unhappy customers are your greatest source of learning. – Bill Gates",
+            "Storytelling is the most powerful way to put ideas into the world. – Robert McKee",
+            "If you can’t explain it simply, you don’t understand it well enough. – Albert Einstein",
+            "A goal without a plan is just a wish. – Antoine de Saint-Exupéry",
+            "Forecasts may tell you a great deal about the forecaster; they tell you nothing about the future. – Warren Buffett",
+            "Without data, you’re just another person with an opinion. – W. Edwards Deming",
+            "Design is not just what it looks like and feels like. Design is how it works. – Steve Jobs",
+            "Vision without execution is hallucination. – Thomas Edison",
+            "A good plan today is better than a perfect plan tomorrow. – George S. Patton",
+            "Documentation is a love letter that you write to your future self. – Damian Conway",
+            "The difference between ordinary and extraordinary is that little extra. – Jimmy Johnson",
+            "The secret to getting ahead is getting started. – Mark Twain",
+            "Opportunities don't happen. You create them. – Chris Grosser"
+        ];
     }
 
     async init() {
@@ -76,6 +99,8 @@ class SandBoxApp {
             loginBtn: document.getElementById('loginBtn'),
             userProfile: document.getElementById('userProfile'),
             userGreeting: document.getElementById('userGreeting'),
+            stepQuote: document.getElementById('stepQuote'), // Added for step-specific quote
+            stepFeatures: document.getElementById('stepFeatures'), // Added for step-specific features
         };
     }
 
@@ -393,6 +418,12 @@ class SandBoxApp {
         if (!step) return;
         // Clear chat for new step
         if (this.elements.chatMessages) this.elements.chatMessages.innerHTML = '';
+        // Show quote for this step
+        if (this.elements.stepQuote) {
+            this.elements.stepQuote.textContent = this.stepQuotes[this.currentStep] || '';
+        }
+        // Show step-specific features
+        this.renderStepFeatures();
         // Add a prompt for the step
         this.addAIMessage(`You are now on step ${this.currentStep + 1}: ${step.title}. Please describe your thoughts or progress for this step. The AI will help you interactively.`);
         // Enable input
@@ -492,6 +523,134 @@ class SandBoxApp {
     exportBusinessPlan() {
         console.log("Exporting business plan");
         alert("Business plan export feature coming soon!");
+    }
+
+    renderStepFeatures() {
+        if (!this.elements.stepFeatures) return;
+        let html = '';
+        switch (this.workflowSteps[this.currentStep].title) {
+            case 'Pitch Deck Creation':
+                html = `<button id="generatePitchDeckBtn">Generate PowerPoint Pitch Deck</button><div id="pitchDeckStatus"></div>`;
+                break;
+            case 'Financial Forecasting':
+                html = `<button id="runFinancialAnalysisBtn">Run Financial Analysis</button><div id="financialAnalysisResult"></div>`;
+                break;
+            // Add more cases for other steps as needed
+            default:
+                html = `<span>Use the chat to get tailored advice for this step.</span>`;
+        }
+        this.elements.stepFeatures.innerHTML = html;
+        // Add event listeners for step-specific features
+        if (this.workflowSteps[this.currentStep].title === 'Pitch Deck Creation') {
+            const btn = document.getElementById('generatePitchDeckBtn');
+            if (btn) btn.onclick = async () => {
+                const status = document.getElementById('pitchDeckStatus');
+                status.textContent = 'Generating pitch deck...';
+                try {
+                    const businessPlan = {
+                        problemStatement: this.userResponses.problemStatement,
+                        solutionDetails: this.userResponses.solutionDetails,
+                        customerSegments: this.userResponses.customerSegments,
+                        financialSummary: 'See financials step',
+                    };
+                    const response = await fetch('/api/generate-pitch-deck', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ businessPlan })
+                    });
+                    if (!response.ok) throw new Error('Failed to generate pitch deck');
+                    const blob = await response.blob();
+                    const url = window.URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    a.href = url;
+                    a.download = 'SandBox_Pitch_Deck.pptx';
+                    document.body.appendChild(a);
+                    a.click();
+                    a.remove();
+                    window.URL.revokeObjectURL(url);
+                    status.textContent = 'Pitch deck downloaded!';
+                } catch (err) {
+                    status.textContent = 'Error generating pitch deck.';
+                }
+            };
+        }
+        if (this.workflowSteps[this.currentStep].title === 'Financial Forecasting') {
+            const btn = document.getElementById('runFinancialAnalysisBtn');
+            if (btn) btn.onclick = async () => {
+                const result = document.getElementById('financialAnalysisResult');
+                result.textContent = 'Running financial analysis...';
+                try {
+                    // Simulate getting projections from backend
+                    const projections = await fetch('/api/generate-financials', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({})
+                    }).then(r => r.json());
+                    // Download PDF
+                    const response = await fetch('/api/generate-financial-report', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ projections })
+                    });
+                    if (!response.ok) throw new Error('Failed to generate report');
+                    const blob = await response.blob();
+                    const url = window.URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    a.href = url;
+                    a.download = 'SandBox_Financial_Report.pdf';
+                    document.body.appendChild(a);
+                    a.click();
+                    a.remove();
+                    window.URL.revokeObjectURL(url);
+                    result.textContent = 'Financial report downloaded!';
+                } catch (err) {
+                    result.textContent = 'Error generating financial report.';
+                }
+            };
+        }
+        // Additional features for other steps
+        switch (this.workflowSteps[this.currentStep].title) {
+            case 'Customer Segments': {
+                this.elements.stepFeatures.innerHTML = `<button id="generatePersonaBtn">Generate Customer Persona</button><div id="personaResult"></div>`;
+                const btn = document.getElementById('generatePersonaBtn');
+                if (btn) btn.onclick = async () => {
+                    document.getElementById('personaResult').textContent = 'Persona: Tech-savvy entrepreneur, 25-40, values innovation and efficiency.';
+                };
+                break;
+            }
+            case 'Problem Validation': {
+                this.elements.stepFeatures.innerHTML = `<button id="generateSurveyBtn">Generate Validation Survey</button><div id="surveyResult"></div>`;
+                const btn = document.getElementById('generateSurveyBtn');
+                if (btn) btn.onclick = async () => {
+                    document.getElementById('surveyResult').textContent = 'Survey link: https://forms.gle/example (demo)';
+                };
+                break;
+            }
+            case 'Motivation - Storytelling': {
+                this.elements.stepFeatures.innerHTML = `<button id="generateStoryTemplateBtn">Show Storytelling Template</button><div id="storyTemplate"></div>`;
+                const btn = document.getElementById('generateStoryTemplateBtn');
+                if (btn) btn.onclick = async () => {
+                    document.getElementById('storyTemplate').textContent = 'Template: Once upon a time... [Describe your journey, challenge, and breakthrough]';
+                };
+                break;
+            }
+            case 'Elevator Pitch': {
+                this.elements.stepFeatures.innerHTML = `<button id="generatePitchBtn">Generate Elevator Pitch</button><div id="pitchResult"></div>`;
+                const btn = document.getElementById('generatePitchBtn');
+                if (btn) btn.onclick = async () => {
+                    document.getElementById('pitchResult').textContent = 'Pitch: We help startups validate ideas faster using AI-powered tools.';
+                };
+                break;
+            }
+            case 'Business Plan Generation': {
+                this.elements.stepFeatures.innerHTML = `<button id="exportBusinessPlanBtn">Export Business Plan (PDF)</button><div id="exportPlanResult"></div>`;
+                const btn = document.getElementById('exportBusinessPlanBtn');
+                if (btn) btn.onclick = async () => {
+                    document.getElementById('exportPlanResult').textContent = 'Business plan export coming soon!';
+                };
+                break;
+            }
+        }
     }
 }
 
