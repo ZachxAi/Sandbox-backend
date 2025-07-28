@@ -130,11 +130,23 @@ class SandBoxApp {
         }
 
         if (this.elements.exportBtn) {
-            this.elements.exportBtn.addEventListener('click', () => this.exportBusinessPlan());
+            this.elements.exportBtn.addEventListener('click', () => {
+                alert("This function isn't available for now.");
+            });
         }
 
         if (this.elements.collabBtn) {
-            this.elements.collabBtn.addEventListener('click', () => this.showCollaborationHub());
+            this.elements.collabBtn.addEventListener('click', () => {
+                alert("This function isn't available for now.");
+            });
+        }
+
+        // Logo click redirects to main page
+        const navLogo = document.getElementById('navLogo');
+        if (navLogo) {
+            navLogo.addEventListener('click', () => {
+                window.location.href = 'index.html';
+            });
         }
 
         // Auth buttons
@@ -232,7 +244,7 @@ class SandBoxApp {
     }
 
     async getAIResponse(userMessage) {
-        const API_BASE = 'https://sandbox-backend-pxtc.onrender.com/api';
+        const API_BASE = 'https://sandbox-backend-bgc0.onrender.com/api';
         const authToken = localStorage.getItem('authToken') || sessionStorage.getItem('authToken');
         
         if (!authToken) {
@@ -241,7 +253,74 @@ class SandBoxApp {
         
         // Create context based on current step
         const currentStepInfo = this.workflowSteps[this.currentStep] || {};
-        const context = `You are an AI business advisor helping an entrepreneur. Current step: ${currentStepInfo.title}. User response: ${userMessage}. Provide helpful, encouraging advice and ask follow-up questions to guide them through their business planning journey.`;
+        let context = '';
+        switch (currentStepInfo.title) {
+            case 'Problem Definition':
+                context = `Stage: Problem Definition. Help the user clearly articulate the problem they want to solve. Give feedback on clarity, scope, and importance. Suggest ways to make the problem statement more compelling or specific. Ask what motivates them to solve this problem.`;
+                break;
+            case 'Motivation - Innovation':
+                context = `Stage: Motivation - Innovation. Explore what makes the user's idea innovative. Encourage them to think about unique aspects, new technologies, or creative approaches. Give feedback on originality and suggest ways to differentiate further.`;
+                break;
+            case 'Problem Validation':
+                context = `Stage: Problem Validation. Help the user validate if the problem is real and significant. Suggest ways to research or test the problem with real people. Give feedback on their validation approach and ask about evidence or data.`;
+                break;
+            case 'Motivation - Persistence':
+                context = `Stage: Motivation - Persistence. Discuss the user's drive and commitment. Ask about challenges they've faced and how they overcame them. Give feedback on resilience and suggest ways to stay motivated.`;
+                break;
+            case 'Idea Refinement':
+                context = `Stage: Idea Refinement. Help the user refine their solution. Give actionable feedback on feasibility, user value, and potential improvements. Suggest ways to prototype or test the idea.`;
+                break;
+            case 'Motivation - Creativity':
+                context = `Stage: Motivation - Creativity. Encourage creative thinking. Ask about brainstorming methods or how they generate new ideas. Give feedback on creativity and suggest ways to foster it.`;
+                break;
+            case 'Customer Segments':
+                context = `Stage: Customer Segments. Help the user identify and describe their target customers. Give feedback on segmentation, suggest additional segments, and ask about customer needs and behaviors.`;
+                break;
+            case 'Motivation - Customer Focus':
+                context = `Stage: Motivation - Customer Focus. Discuss why the user cares about their customers. Ask about empathy, user research, and feedback. Give feedback on customer-centric thinking.`;
+                break;
+            case 'Customer Examples':
+                context = `Stage: Customer Examples. Ask the user to provide real or hypothetical examples of customers. Give feedback on specificity and realism. Suggest ways to gather more customer stories.`;
+                break;
+            case 'Motivation - Storytelling':
+                context = `Stage: Motivation - Storytelling. Encourage the user to tell their story or their business's story. Give feedback on narrative, emotional impact, and clarity. Suggest ways to improve storytelling.`;
+                break;
+            case 'Elevator Pitch':
+                context = `Stage: Elevator Pitch. Help the user craft a concise, compelling pitch. Give feedback on clarity, value proposition, and delivery. Suggest improvements and ask follow-up questions.`;
+                break;
+            case 'Motivation - Planning':
+                context = `Stage: Motivation - Planning. Discuss the user's approach to planning. Give feedback on thoroughness, adaptability, and foresight. Suggest planning tools or methods.`;
+                break;
+            case 'Financial Forecasting':
+                context = `Stage: Financial Forecasting. Help the user estimate costs, revenues, and profits. Give feedback on assumptions, realism, and completeness. Suggest ways to improve financial projections.`;
+                break;
+            case 'Motivation - Data':
+                context = `Stage: Motivation - Data. Discuss the user's use of data in decision-making. Give feedback on data sources, analysis, and application. Suggest ways to leverage data more effectively.`;
+                break;
+            case 'Pitch Deck Creation':
+                context = `Stage: Pitch Deck Creation. Help the user outline and create a pitch deck. Give feedback on structure, content, and design. Suggest best practices and resources.`;
+                break;
+            case 'Motivation - Execution':
+                context = `Stage: Motivation - Execution. Discuss the user's ability to execute plans. Give feedback on action steps, follow-through, and overcoming obstacles. Suggest productivity tips.`;
+                break;
+            case 'Business Plan Generation':
+                context = `Stage: Business Plan Generation. Help the user assemble a comprehensive business plan. Give feedback on completeness, clarity, and persuasiveness. Suggest sections to add or improve.`;
+                break;
+            case 'Motivation - Documentation':
+                context = `Stage: Motivation - Documentation. Discuss the importance of documenting processes and learnings. Give feedback on documentation habits and suggest tools or templates.`;
+                break;
+            case 'Additional Documents':
+                context = `Stage: Additional Documents. Help the user identify and prepare supporting documents (e.g., legal, technical, marketing). Give feedback on thoroughness and suggest what else might be needed.`;
+                break;
+            case 'Motivation - Funding':
+                context = `Stage: Motivation - Funding. Discuss the user's motivation for seeking funding. Give feedback on funding strategy, investor fit, and readiness. Suggest ways to strengthen their case.`;
+                break;
+            case 'Funding Inquiry':
+                context = `Stage: Funding Inquiry. Help the user prepare to approach investors or funding sources. Give feedback on pitch, materials, and strategy. Suggest next steps and follow-up questions.`;
+                break;
+            default:
+                context = `You are an AI business advisor helping an entrepreneur. Current step: ${currentStepInfo.title}. User response: ${userMessage}. Provide helpful, encouraging advice and ask follow-up questions to guide them through their business planning journey.`;
+        }
         
         const response = await fetch(`${API_BASE}/chat/ai-response`, {
             method: 'POST',

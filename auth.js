@@ -3,7 +3,7 @@
  * Handles user authentication flows including login, registration, and password reset
  */
 
-const API_BASE = 'https://sandbox-backend-pxtc.onrender.com/api';
+const API_BASE = 'https://sandbox-backend-bgc0.onrender.com/api';
 
 class AuthManager {
     constructor() {
@@ -43,6 +43,13 @@ class AuthManager {
         const passwordInput = document.getElementById('registerPassword');
         if (passwordInput) {
             passwordInput.addEventListener('input', this.updatePasswordStrength.bind(this));
+        }
+        // Social login buttons
+        const googleBtn = document.querySelector('.social-button.google');
+        if (googleBtn) {
+            googleBtn.addEventListener('click', () => {
+                window.location.href = `${API_BASE}/auth/google`;
+            });
         }
     }
 
