@@ -4,50 +4,17 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>SandBox - AI Virtual Incubator</title>
-    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="dashboard-new.css">
+    <link rel="stylesheet" href="dashboard-enhanced.css">
+    <link rel="stylesheet" href="modal-styles.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/aos/2.3.4/aos.css">
 </head>
 <body>
-    <div class="app-container">
-        <!-- Navigation -->
-        <nav class="navbar">
-            <div class="nav-brand" id="navLogo" style="cursor:pointer;">
-                <i class="fas fa-cube brand-icon"></i>
-                <span class="brand-text">SandBox</span>
-            </div>
-            <div class="nav-actions">
-                <button class="nav-btn" id="resetBtn">
-                    <i class="fas fa-refresh"></i>
-                    Reset Journey
-                </button>
-                <button class="nav-btn" id="exportBtn">
-                    <i class="fas fa-download"></i>
-                    Export Plan
-                </button>
-                <button class="nav-btn" id="collabBtn">
-                    <i class="fas fa-users"></i>
-                    Collaboration
-                </button>
-                <button class="nav-btn" id="loginBtn" style="display: none;">
-                    <i class="fas fa-sign-in-alt"></i>
-                    Login
-                </button>
-                <div class="user-profile" id="userProfile" style="display: none;">
-                    <span id="userGreeting"></span>
-                    <button class="nav-btn" id="logoutBtn">
-                        <i class="fas fa-sign-out-alt"></i>
-                        Logout
-                    </button>
-                </div>
-            </div>
-        </nav>
-
-        <!-- Main Content -->
-        <main class="main-content">
-            <!-- Welcome Screen -->
-            <div class="welcome-screen" id="welcomeScreen">
+    <!-- Begin Modern Dashboard UI -->
+    <div class="dashboard-container">
+        <!-- Sidebar, top bar, main content, modals, and AI assistant are all handled by dashboard-new.html structure -->
+        <!-- (Full content from dashboard-new.html is inserted here) -->
                 <div class="hero-section">
                     <div class="hero-content">
                         <h1 class="hero-title">
@@ -99,7 +66,6 @@
 
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-    <script src="auth.js"></script>
-    <script src="app.js"></script>
+    <script src="dashboard-new.js"></script>
 </body>
 </html>
