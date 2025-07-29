@@ -4,7 +4,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>SandBox - AI Dashboard</title>
-    <link rel="stylesheet" href="dashboard.css">
+    <link rel="stylesheet" href="dashboard-new.css">
+    <link rel="stylesheet" href="dashboard-enhanced.css">
+    <link rel="stylesheet" href="modal-styles.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/aos/2.3.4/aos.css">
@@ -119,20 +121,40 @@
                 <div class="page-content active" id="problem-definition-page">
                     <div class="page-header">
                         <h1>Problem Definition</h1>
-                        <p>Clearly define the problem you're solving and why it matters</p>
+                        <p class="subtitle">Start your entrepreneurial journey by clearly defining the problem you're solving</p>
+                        <div class="progress-indicator">
+                            <span class="step">Step 1 of 10</span>
+                            <div class="progress-bar"><div class="progress" style="width: 10%"></div></div>
+                        </div>
                     </div>
                     
+                    <div class="guidance-section">
+                        <div class="guidance-card">
+                            <h3><i class="fas fa-lightbulb"></i> What You'll Learn</h3>
+                            <ul>
+                                <li>How to identify and articulate a real problem</li>
+                                <li>Understanding your target audience's pain points</li>
+                                <li>Validating that your problem is worth solving</li>
+                                <li>Creating a compelling problem statement</li>
+                            </ul>
+                        </div>
+                    </div>
+
                     <div class="grid-layout">
                         <div class="card">
                             <div class="card-header">
                                 <h3>Problem Statement</h3>
-                                <i class="fas fa-edit"></i>
+                                <i class="fas fa-exclamation-triangle"></i>
                             </div>
                             <div class="card-body">
-                                <textarea class="form-control" rows="4" placeholder="Describe the problem you're trying to solve..."></textarea>
+                                <label>Describe the specific problem you're solving:</label>
+                                <textarea id="problemStatement" placeholder="Example: Small business owners struggle to track their expenses efficiently, leading to poor financial decisions and tax preparation nightmares..." rows="4"></textarea>
+                                <div class="helper-text">
+                                    <i class="fas fa-info-circle"></i>
+                                    Be specific about who has this problem and why it matters
+                                </div>
                                 <div class="card-actions">
-                                    <button class="btn btn-primary">Save</button>
-                                    <button class="btn btn-link">Generate with AI</button>
+                                    <button class="btn btn-outline ai-assist-btn" data-context="problem-statement">Get AI Suggestions</button>
                                 </div>
                             </div>
                         </div>
@@ -143,52 +165,335 @@
                                 <i class="fas fa-users"></i>
                             </div>
                             <div class="card-body">
-                                <div class="form-group">
-                                    <label>Who experiences this problem?</label>
-                                    <input type="text" class="form-control" placeholder="E.g., Small business owners, students...">
+                                <label>Who experiences this problem?</label>
+                                <input type="text" id="targetAudience" placeholder="e.g., Small business owners with 1-50 employees" />
+                                <div class="tags-section">
+                                    <label>Audience Tags:</label>
+                                    <div class="tags" id="audienceTags">
+                                        <span class="tag removable">Small Businesses <i class="fas fa-times"></i></span>
+                                        <span class="tag removable">Freelancers <i class="fas fa-times"></i></span>
+                                    </div>
+                                    <button class="btn btn-sm btn-outline" id="addAudienceTag">+ Add Tag</button>
                                 </div>
-                                <div class="form-group">
-                                    <label>How do they currently solve this problem?</label>
-                                    <input type="text" class="form-control" placeholder="Current solutions...">
+                                <div class="card-actions">
+                                    <button class="btn btn-primary" id="saveAudience">Save Audience</button>
                                 </div>
-                                <button class="btn btn-primary">Save</button>
                             </div>
                         </div>
                         
                         <div class="card wide">
                             <div class="card-header">
-                                <h3>Problem Validation</h3>
+                                <h3>Problem Impact Assessment</h3>
                                 <div class="card-actions">
-                                    <button class="btn btn-sm btn-outline">
-                                        <i class="fas fa-plus"></i> Add Validation
+                                    <button class="btn btn-sm btn-outline ai-assist-btn" data-context="impact-assessment">
+                                        <i class="fas fa-robot"></i> AI Analysis
                                     </button>
                                 </div>
                             </div>
                             <div class="card-body">
-                                <div class="empty-state">
-                                    <i class="fas fa-clipboard-check"></i>
-                                    <h4>No validation data yet</h4>
-                                    <p>Add customer interviews, surveys, or market research to validate this problem.</p>
-                                    <button class="btn btn-primary">Start Validating</button>
+                                <div class="impact-grid">
+                                    <div class="impact-item">
+                                        <label>Frequency</label>
+                                        <select id="problemFrequency">
+                                            <option value="">How often does this problem occur?</option>
+                                            <option value="daily">Daily</option>
+                                            <option value="weekly">Weekly</option>
+                                            <option value="monthly">Monthly</option>
+                                            <option value="occasionally">Occasionally</option>
+                                        </select>
+                                    </div>
+                                    <div class="impact-item">
+                                        <label>Severity</label>
+                                        <select id="problemSeverity">
+                                            <option value="">How severe is this problem?</option>
+                                            <option value="critical">Critical - Business threatening</option>
+                                            <option value="major">Major - Significant impact</option>
+                                            <option value="moderate">Moderate - Noticeable impact</option>
+                                            <option value="minor">Minor - Small inconvenience</option>
+                                        </select>
+                                    </div>
+                                    <div class="impact-item">
+                                        <label>Market Size</label>
+                                        <input type="text" id="marketSize" placeholder="How many people have this problem?" />
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="card wide">
+                            <div class="card-header">
+                                <h3>Next Steps</h3>
+                                <i class="fas fa-arrow-right"></i>
+                            </div>
+                            <div class="card-body">
+                                <div class="next-steps">
+                                    <div class="step-item">
+                                        <div class="step-number">1</div>
+                                        <div class="step-content">
+                                            <h4>Validate Your Problem</h4>
+                                            <p>Talk to potential customers to confirm this problem exists</p>
+                                            <button class="btn btn-sm btn-primary" onclick="dashboard.navigateToPage('problem-validation')">Start Validation →</button>
+                                        </div>
+                                    </div>
+                                    <div class="step-item">
+                                        <div class="step-number">2</div>
+                                        <div class="step-content">
+                                            <h4>Research Competition</h4>
+                                            <p>See how others are currently solving this problem</p>
+                                            <button class="btn btn-sm btn-outline">Research Tools</button>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                         </div>
                     </div>
                 </div>
 
-                <!-- Other pages will be dynamically shown/hidden based on navigation -->
+                <!-- Problem Validation Page -->
                 <div class="page-content" id="problem-validation-page">
-                    <!-- Content for Problem Validation page -->
+                    <div class="page-header">
+                        <h1>Problem Validation</h1>
+                        <p class="subtitle">Prove that your problem is real and worth solving through customer research</p>
+                        <div class="progress-indicator">
+                            <span class="step">Step 2 of 10</span>
+                            <div class="progress-bar"><div class="progress" style="width: 20%"></div></div>
+                        </div>
+                    </div>
+                    
+                    <div class="guidance-section">
+                        <div class="guidance-card">
+                            <h3><i class="fas fa-search"></i> Validation Methods</h3>
+                            <div class="method-grid">
+                                <div class="method-item">
+                                    <i class="fas fa-comments"></i>
+                                    <h4>Customer Interviews</h4>
+                                    <p>One-on-one conversations with potential customers</p>
+                                </div>
+                                <div class="method-item">
+                                    <i class="fas fa-poll"></i>
+                                    <h4>Surveys</h4>
+                                    <p>Collect data from a larger group of people</p>
+                                </div>
+                                <div class="method-item">
+                                    <i class="fas fa-chart-line"></i>
+                                    <h4>Market Research</h4>
+                                    <p>Analyze existing data and industry reports</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="grid-layout">
+                        <div class="card">
+                            <div class="card-header">
+                                <h3>Interview Questions</h3>
+                                <i class="fas fa-question-circle"></i>
+                            </div>
+                            <div class="card-body">
+                                <div class="question-template">
+                                    <h4>Suggested Questions:</h4>
+                                    <ul class="question-list">
+                                        <li>"Tell me about the last time you experienced [problem]"</li>
+                                        <li>"How do you currently solve this problem?"</li>
+                                        <li>"What's the biggest pain point in your current solution?"</li>
+                                        <li>"How much time/money does this problem cost you?"</li>
+                                    </ul>
+                                    <button class="btn btn-outline ai-assist-btn" data-context="interview-questions">Generate Custom Questions</button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="card">
+                            <div class="card-header">
+                                <h3>Interview Tracker</h3>
+                                <div class="card-actions">
+                                    <button class="btn btn-sm btn-primary" id="addInterview">+ Add Interview</button>
+                                </div>
+                            </div>
+                            <div class="card-body">
+                                <div class="interview-stats">
+                                    <div class="stat">
+                                        <span class="number">0</span>
+                                        <span class="label">Interviews</span>
+                                    </div>
+                                    <div class="stat">
+                                        <span class="number">0%</span>
+                                        <span class="label">Confirmed Problem</span>
+                                    </div>
+                                </div>
+                                <div class="interview-list" id="interviewList">
+                                    <div class="empty-state">
+                                        <i class="fas fa-microphone"></i>
+                                        <p>No interviews recorded yet</p>
+                                        <button class="btn btn-primary" id="startFirstInterview">Record First Interview</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="card wide">
+                            <div class="card-header">
+                                <h3>Validation Results</h3>
+                                <i class="fas fa-chart-bar"></i>
+                            </div>
+                            <div class="card-body">
+                                <div class="validation-metrics">
+                                    <div class="metric">
+                                        <label>Problem Confirmation Rate</label>
+                                        <div class="metric-bar">
+                                            <div class="bar" style="width: 0%"></div>
+                                            <span class="percentage">0%</span>
+                                        </div>
+                                    </div>
+                                    <div class="metric">
+                                        <label>Willingness to Pay</label>
+                                        <div class="metric-bar">
+                                            <div class="bar" style="width: 0%"></div>
+                                            <span class="percentage">0%</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="insights-section">
+                                    <h4>Key Insights</h4>
+                                    <textarea placeholder="What did you learn from your validation research?" rows="3"></textarea>
+                                    <button class="btn btn-outline ai-assist-btn" data-context="validation-insights">Analyze with AI</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
-                
+
+                <!-- Idea Refinement Page -->
                 <div class="page-content" id="idea-refinement-page">
-                    <!-- Content for Idea Refinement page -->
+                    <div class="page-header">
+                        <h1>Idea Refinement</h1>
+                        <p class="subtitle">Transform your validated problem into a compelling solution concept</p>
+                        <div class="progress-indicator">
+                            <span class="step">Step 3 of 10</span>
+                            <div class="progress-bar"><div class="progress" style="width: 30%"></div></div>
+                        </div>
+                    </div>
+                    
+                    <div class="guidance-section">
+                        <div class="guidance-card">
+                            <h3><i class="fas fa-cogs"></i> Solution Framework</h3>
+                            <p>Use the "How Might We" framework to brainstorm solutions:</p>
+                            <div class="framework-example">
+                                <strong>How might we</strong> help [target audience] [achieve goal] so that [desired outcome]?
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="grid-layout">
+                        <div class="card">
+                            <div class="card-header">
+                                <h3>Solution Concept</h3>
+                                <i class="fas fa-lightbulb"></i>
+                            </div>
+                            <div class="card-body">
+                                <label>Describe your solution in one sentence:</label>
+                                <textarea id="solutionConcept" placeholder="We help [target audience] [solve problem] by [your solution approach]..." rows="3"></textarea>
+                                <div class="solution-type">
+                                    <label>Solution Type:</label>
+                                    <div class="radio-group">
+                                        <label><input type="radio" name="solutionType" value="software"> Software/App</label>
+                                        <label><input type="radio" name="solutionType" value="service"> Service</label>
+                                        <label><input type="radio" name="solutionType" value="product"> Physical Product</label>
+                                        <label><input type="radio" name="solutionType" value="platform"> Platform/Marketplace</label>
+                                    </div>
+                                </div>
+                                <button class="btn btn-outline ai-assist-btn" data-context="solution-refinement">Refine with AI</button>
+                            </div>
+                        </div>
+
+                        <div class="card">
+                            <div class="card-header">
+                                <h3>Unique Value Proposition</h3>
+                                <i class="fas fa-star"></i>
+                            </div>
+                            <div class="card-body">
+                                <label>What makes your solution unique?</label>
+                                <textarea id="valueProposition" placeholder="Unlike existing solutions, we..." rows="3"></textarea>
+                                <div class="differentiators">
+                                    <label>Key Differentiators:</label>
+                                    <div class="tag-input">
+                                        <input type="text" placeholder="Add a differentiator" id="differentiatorInput">
+                                        <button class="btn btn-sm" id="addDifferentiator">Add</button>
+                                    </div>
+                                    <div class="tags" id="differentiatorTags"></div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="card wide">
+                            <div class="card-header">
+                                <h3>Feature Prioritization</h3>
+                                <div class="card-actions">
+                                    <button class="btn btn-sm btn-outline" id="addFeature">+ Add Feature</button>
+                                </div>
+                            </div>
+                            <div class="card-body">
+                                <div class="feature-matrix">
+                                    <div class="matrix-header">
+                                        <div class="axis-label vertical">Impact</div>
+                                        <div class="matrix-grid">
+                                            <div class="quadrant high-impact low-effort">
+                                                <h4>Quick Wins</h4>
+                                                <p>High Impact, Low Effort</p>
+                                            </div>
+                                            <div class="quadrant high-impact high-effort">
+                                                <h4>Major Projects</h4>
+                                                <p>High Impact, High Effort</p>
+                                            </div>
+                                            <div class="quadrant low-impact low-effort">
+                                                <h4>Fill-ins</h4>
+                                                <p>Low Impact, Low Effort</p>
+                                            </div>
+                                            <div class="quadrant low-impact high-effort">
+                                                <h4>Thankless Tasks</h4>
+                                                <p>Low Impact, High Effort</p>
+                                            </div>
+                                        </div>
+                                        <div class="axis-label horizontal">Effort</div>
+                                    </div>
+                                </div>
+                                <button class="btn btn-outline ai-assist-btn" data-context="feature-suggestions">Get Feature Suggestions</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Continue with other pages... -->
+                <div class="page-content" id="customer-segments-page">
+                    <!-- Customer Segments content -->
                 </div>
                 
-                <!-- Add more page content divs for other sections -->
+                <div class="page-content" id="customer-examples-page">
+                    <!-- Customer Examples content -->
+                </div>
+                
+                <div class="page-content" id="elevator-pitch-page">
+                    <!-- Elevator Pitch content -->
+                </div>
+                
+                <div class="page-content" id="financial-forecasting-page">
+                    <!-- Financial Forecasting content -->
+                </div>
+                
+                <div class="page-content" id="pitch-deck-page">
+                    <!-- Pitch Deck content -->
+                </div>
+                
+                <div class="page-content" id="business-plan-page">
+                    <!-- Business Plan content -->
+                </div>
+                
+                <div class="page-content" id="additional-docs-page">
+                    <!-- Additional Documents content -->
+                </div>
                 
                 <div class="page-content" id="funding-inquiry-page">
-                    <!-- Content for Funding Inquiry page -->
+                    <!-- Funding Inquiry content -->
                 </div>
             </div>
         </main>
@@ -219,19 +524,120 @@
     </div>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/aos/2.3.4/aos.js"></script>
-    <script src="dashboard.js"></script>
+    <script src="dashboard-new.js"></script>
     <script>
         // Initialize AOS animations
-        AOS.init({
-            duration: 800,
-            easing: 'ease-in-out',
-            once: true
-        });
-        
-        // Initialize the dashboard
         document.addEventListener('DOMContentLoaded', () => {
-            const dashboard = new DashboardApp();
+            AOS.init({
+                duration: 800,
+                easing: 'ease-in-out',
+                once: true
+            });
+            
+            // Initialize the dashboard
+            window.dashboard = new DashboardApp();
+            
+            // Initialize chat input handler
+            const chatInput = document.getElementById('aiInput');
+            const sendButton = document.getElementById('sendMessage');
+            
+            if (chatInput && sendButton) {
+                chatInput.addEventListener('keypress', (e) => {
+                    if (e.key === 'Enter') {
+                        window.dashboard.sendMessage();
+                    }
+                });
+                
+                sendButton.addEventListener('click', () => {
+                    window.dashboard.sendMessage();
+                });
+            }
         });
     </script>
+
+    <!-- Interview Modal -->
+    <div id="interview-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Record Interview</h3>
+                <button class="modal-close">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="interview-form">
+                    <div class="form-group">
+                        <label for="interview-name">Name</label>
+                        <input type="text" id="interview-name" name="name" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="interview-role">Role/Title</label>
+                        <input type="text" id="interview-role" name="role" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="interview-date">Date</label>
+                        <input type="date" id="interview-date" name="date" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="interview-insights">Key Insights</label>
+                        <textarea id="interview-insights" name="insights" placeholder="What did you learn from this interview?" required></textarea>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Save Interview</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Feature Modal -->
+    <div id="feature-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Add Feature</h3>
+                <button class="modal-close">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="feature-form">
+                    <div class="form-group">
+                        <label for="feature-name">Feature Name</label>
+                        <input type="text" id="feature-name" name="name" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="feature-description">Description</label>
+                        <textarea id="feature-description" name="description" placeholder="Describe the feature and its benefits" required></textarea>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="feature-impact">Impact</label>
+                            <select id="feature-impact" name="impact" required>
+                                <option value="low">Low</option>
+                                <option value="medium">Medium</option>
+                                <option value="high">High</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="feature-effort">Effort</label>
+                            <select id="feature-effort" name="effort" required>
+                                <option value="low">Low</option>
+                                <option value="medium">Medium</option>
+                                <option value="high">High</option>
+                            </select>
+                        </div>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Add Feature</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- AI Response Modal -->
+    <div id="response-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>AI Response</h3>
+                <button class="modal-close">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div id="ai-response-content" class="ai-response"></div>
+            </div>
+        </div>
+    </div>
 </body>
 </html>

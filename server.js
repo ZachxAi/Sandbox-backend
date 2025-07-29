@@ -9,6 +9,7 @@ require('dotenv').config();
 const config = require('./config');
 const passport = require('passport');
 const { OpenAI } = require('openai');
+const { RateLimiterMemory } = require('rate-limiter-flexible');
 
 const app = express();
 const PORT = config.PORT || 3000;
@@ -27,6 +28,25 @@ const connectDB = async () => {
   }
 };
 connectDB();
+
+// Rate limiting
+const rateLimiter = new RateLimiterMemory({
+  points: 10, // 10 requests
+  duration: 60, // per 1 minute
+});
+
+const rateLimiterMiddleware = (req, res, next) => {
+  rateLimiter.consume(req.ip)
+    .then(() => {
+      next();
+    })
+    .catch(() => {
+      res.status(429).send('Too Many Requests');
+    });
+};
+
+// Apply rate limiting to API routes
+app.use('/api/', rateLimiterMiddleware);
 
 // Middleware
 app.use(helmet({
@@ -47,8 +67,11 @@ app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 app.use(passport.initialize());
 
-// Serve static files
-app.use(express.static(path.join(__dirname)));
+// Serve static files with caching
+app.use(express.static(path.join(__dirname), {
+  maxAge: '1d', // Cache for 1 day
+  etag: true
+}));
 
 // Initialize OpenAI client
 const openai = new OpenAI({
