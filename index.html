@@ -67,5 +67,21 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script src="dashboard-new.js"></script>
+    <script>
+      // Redirect to dashboard if already authenticated
+      const token = localStorage.getItem('authToken') || sessionStorage.getItem('authToken');
+      if (token) {
+        window.location.href = 'dashboard.html';
+      }
+      // Add click handler for Start Your Journey button
+      document.addEventListener('DOMContentLoaded', function() {
+        const btn = document.getElementById('startJourneyBtn');
+        if (btn) {
+          btn.addEventListener('click', function() {
+            window.location.href = 'auth.html';
+          });
+        }
+      });
+    </script>
 </body>
 </html>

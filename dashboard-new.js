@@ -1,5 +1,11 @@
 class DashboardApp {
     constructor() {
+        // Authentication check
+        const token = localStorage.getItem('authToken') || sessionStorage.getItem('authToken');
+        if (!token) {
+            window.location.href = 'auth.html';
+            return;
+        }
         // DOM Elements
         this.elements = {
             // Navigation
